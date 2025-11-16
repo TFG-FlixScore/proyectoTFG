@@ -1,16 +1,9 @@
+import 'package:flixscore/controllers/login_provider.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 class EstadisticasCard extends StatelessWidget {
-  final int? peliculasValoradas;
-  final int? numeroAmigos;
-  final double? puntuacionMedia;
-
-  const EstadisticasCard({
-    super.key,
-    this.peliculasValoradas,
-    this.numeroAmigos,
-    this.puntuacionMedia,
-  });
+  const EstadisticasCard({super.key});
 
   // Colores
   static const Color cardBackgroundColor = Color(0xFF1A1C25); 
@@ -22,10 +15,17 @@ class EstadisticasCard extends StatelessWidget {
 
 
   @override
-  Widget build(BuildContext context) {
-    final int safePeliculasValoradas = peliculasValoradas ?? 0;
-    final int safeNumeroAmigos = numeroAmigos ?? 0;
-    final double safePuntuacionMedia = puntuacionMedia ?? 0.0;
+Widget build(BuildContext context) {
+  final usuario = context.watch<LoginProvider>().usuarioLogueado; 
+
+  if (usuario == null) {
+    return const SizedBox.shrink(); 
+  }
+
+  final criticas = usuario.puntuaciones.length;
+  final media = usuario.puntuaciones.isEmpty
+      ? 0.0
+      : usuario.puntuaciones.reduce((a, b) => a + b) / usuario.puntuaciones.length;
 
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
@@ -60,7 +60,7 @@ class EstadisticasCard extends StatelessWidget {
             icon: Icons.people_alt_outlined,
             iconColor: Colors.blue.shade400,
             label: "Amigos",
-            value: safeNumeroAmigos.toString(),
+            value: usuario.amigosId.length.toString(),
           ),
 
           const SizedBox(height: 10),
@@ -74,7 +74,7 @@ class EstadisticasCard extends StatelessWidget {
             icon: Icons.movie_outlined,
             iconColor: highlightColor,
             label: "Películas valoradas",
-            value: safePeliculasValoradas.toString(),
+            value: criticas.toString(),
           ),
 
           const SizedBox(height: 10),
@@ -88,7 +88,7 @@ class EstadisticasCard extends StatelessWidget {
             iconColor: Colors.orange.shade400,
             label: "Puntuación media",
             // Formatea la puntuación para mostrar 1 decimal y añade el sufijo /10
-            value: "${safePuntuacionMedia.toStringAsFixed(1)} /10",
+            value: "${media.toStringAsFixed(1)} /10",
           ),
 
           const SizedBox(height: 10),

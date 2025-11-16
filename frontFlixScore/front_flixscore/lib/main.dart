@@ -2,11 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:provider/provider.dart';
 import 'package:firebase_core/firebase_core.dart';
-
 import 'package:flixscore/controllers/login_provider.dart';
 import 'package:flixscore/controllers/register_provider.dart';
 import 'package:flixscore/paginas/home_page.dart';
-import 'package:flixscore/paginas/perfil_usuario_page.dart';
 import 'package:flixscore/paginas/login_page.dart';
 import 'package:flixscore/firebase_options.dart';
 

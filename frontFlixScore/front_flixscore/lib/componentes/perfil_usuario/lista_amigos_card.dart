@@ -1,82 +1,89 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'components/amigo_item.dart';
-import 'package:flixscore/componentes/common/snack_bar.dart';
 import 'package:flixscore/modelos/amigo_modelo.dart';
 import 'package:flixscore/service/api_service.dart';
+import 'package:flixscore/controllers/login_provider.dart';
+import 'package:flixscore/componentes/common/snack_bar.dart';
 
 class ListaAmigosCard extends StatefulWidget {
-  final List<Amigo> amigos;
-  final double maxHeight;
   final String usuarioId;
-  final Function(String) onAmigoEliminado;
+  final List<Amigo> amigosConComunes;
 
   const ListaAmigosCard({
     super.key,
-    required this.amigos,
-    this.maxHeight = 350,
     required this.usuarioId,
-    required this.onAmigoEliminado,
+    required this.amigosConComunes,
   });
-
-  static const Color cardBackgroundColor = Color(0xFF1A1C25);
-  static const Color primaryTextColor = Colors.white;
-  static const Color secondaryTextColor = Color(0xFFAAAAAA);
-  static const Color dividerColor = Color(0xFF333333);
-  static const Color countBadgeColor = Color(0xFF1F2937);
-  static const Color accentColor = Color(0xFFEF4444);
 
   @override
   State<ListaAmigosCard> createState() => _ListaAmigosCardState();
 }
 
 class _ListaAmigosCardState extends State<ListaAmigosCard> {
-  final ApiService _apiService = ApiService();
+  late List<Amigo> _amigos;
 
-  Future<bool?> _mostrarDialogoConfirmacion(BuildContext context, String nombreAmigo) {
-    return showDialog<bool>(
+  @override
+  void initState() {
+    super.initState();
+    _amigos = List.from(widget.amigosConComunes);
+  }
+
+  @override
+  void didUpdateWidget(covariant ListaAmigosCard oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.amigosConComunes != oldWidget.amigosConComunes) {
+      _amigos = List.from(widget.amigosConComunes);
+    }
+  }
+
+  // Método de eliminacion de amigos
+  Future<void> _confirmarYEliminarAmigo(Amigo amigo) async {
+    final confirmed = await showDialog<bool>(
       context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          backgroundColor: ListaAmigosCard.cardBackgroundColor,
-          title: const Text(
-            'Confirmar Eliminación',
-            style: TextStyle(color: ListaAmigosCard.primaryTextColor, fontWeight: FontWeight.bold),
+      builder: (_) => AlertDialog(
+        backgroundColor: const Color(0xFF1A1C25),
+        title: const Text('¿Dejar de seguir?',
+            style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+        content: Text('¿Deseas dejar de seguir a ${amigo.nombre}?',
+            style: const TextStyle(color: Color(0xFFAAAAAA))),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: const Text('Cancelar', style: TextStyle(color: Color(0xFFAAAAAA))),
           ),
-          content: Text(
-            '¿Estás seguro de que quieres dejar de seguir a $nombreAmigo?',
-            style: const TextStyle(color: ListaAmigosCard.secondaryTextColor),
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            child: const Text('Confirmar', style: TextStyle(color: Colors.redAccent)),
           ),
-          actions: <Widget>[
-            TextButton(
-              child: const Text(
-                'Cancelar',
-                style: TextStyle(color: ListaAmigosCard.secondaryTextColor),
-              ),
-              onPressed: () {
-                Navigator.of(context).pop(false);
-              },
-            ),
-            TextButton(
-              child: const Text(
-                'Confirmar',
-                style: TextStyle(color: ListaAmigosCard.accentColor, fontWeight: FontWeight.bold),
-              ),
-              onPressed: () {
-                Navigator.of(context).pop(true);
-              },
-            ),
-          ],
-        );
-      },
+        ],
+      ),
     );
+
+    if (confirmed != true || amigo.documentID == null) return;
+
+    try {
+      final api = ApiService();
+      await api.eliminarAmigo(widget.usuarioId, amigo.documentID!);
+      final provider = Provider.of<LoginProvider>(context, listen: false);
+      provider.actualizarAmigosId(
+        provider.usuarioLogueado!.amigosId.where((id) => id != amigo.documentID).toList(),
+      );
+      mostrarSnackBarExito(context, 'Ya no sigues a ${amigo.nombre}');
+      setState(() {
+        _amigos.remove(amigo);
+      });
+    } catch (_) {
+      mostrarSnackBarError(context, 'No hemos podido eliminar a ${amigo.nombre}, inténtalo mas tarde.');
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       decoration: BoxDecoration(
-        color: ListaAmigosCard.cardBackgroundColor,
+        color: const Color(0xFF1A1C25),
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
@@ -86,90 +93,59 @@ class _ListaAmigosCardState extends State<ListaAmigosCard> {
           ),
         ],
       ),
-      padding: const EdgeInsets.all(16.0),
+      padding: const EdgeInsets.all(16),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          // --- Encabezado ---
           Row(
             children: [
               const Text(
                 "Mis Amigos",
-                style: TextStyle(
-                  color: ListaAmigosCard.primaryTextColor,
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                ),
+                style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
               ),
               const Spacer(),
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                 decoration: BoxDecoration(
-                  color: ListaAmigosCard.countBadgeColor,
+                  color: const Color(0xFF1F2937),
                   borderRadius: BorderRadius.circular(10),
                 ),
                 child: Text(
-                  widget.amigos.length.toString(),
-                  style: const TextStyle(
-                    color: ListaAmigosCard.primaryTextColor,
-                    fontSize: 14,
-                  ),
+                  _amigos.length.toString(),
+                  style: const TextStyle(color: Colors.white, fontSize: 14),
                 ),
               ),
             ],
           ),
           const SizedBox(height: 4),
-          const Text(
-            "Personas que sigues",
-            style: TextStyle(
-              color: ListaAmigosCard.secondaryTextColor,
-              fontSize: 14,
-            ),
-          ),
-          const Divider(height: 20, color: ListaAmigosCard.dividerColor),
+          const Text("Personas que sigues", style: TextStyle(color: Color(0xFFAAAAAA), fontSize: 14)),
+          const Divider(height: 20, color: Color(0xFF333333)),
+
+          // --- Contenido con Altura Fija ---
           SizedBox(
-            height: 275,
-            child: ListView.builder(
-              shrinkWrap: true,
-              itemCount: widget.amigos.length,
-              itemBuilder: (context, index) {
-                final amigo = widget.amigos[index];
-                return AmigoListItem(
-                  nombre: amigo.nombre,
-                  amigosEnComun: amigo.amigosEnComun,
-                  imagenPerfil: amigo.imagenPerfil, // ✅ Nueva línea
-                  onQuitarAmigo: () async {
-                    final confirmado = await _mostrarDialogoConfirmacion(context, amigo.nombre);
-                    if (confirmado != true) return;
-
-                    try {
-                      final amigosEncontrados = await _apiService.getByNick(amigo.nombre);
-                      if (amigosEncontrados.isEmpty) {
-                        mostrarSnackBarError(context, "No se encontró al usuario");
-                        return;
-                      }
-                      final amigoUsuario = amigosEncontrados.first;
-                      if (amigoUsuario.documentID == null) {
-                        mostrarSnackBarError(context, "El amigo no tiene ID válido");
-                        return;
-                      }
-
-                      await _apiService.eliminarAmigo(widget.usuarioId, amigoUsuario.documentID!);
-
-                      setState(() {
-                        widget.amigos.removeAt(index);
-                      });
-
-                      widget.onAmigoEliminado(amigo.nombre);
-
-                      mostrarSnackBarExito(context, "${amigo.nombre} eliminado de tus amigos");
-                    } catch (e) {
-                      mostrarSnackBarError(context, "Error al eliminar amigo: ${e.toString().split(':').last.trim()}");
-                    }
-                  },
-                );
-              },
-            ),
+            height: 275, // Altura fija que queremos mantener
+            child: _amigos.isEmpty
+                ? const Center(
+                    child: Text(
+                      "No tienes amigos agregados.",
+                      style: TextStyle(color: Color(0xFFAAAAAA)),
+                    ),
+                  )
+                : ListView.builder(
+                    shrinkWrap: true,
+                    itemCount: _amigos.length,
+                    itemBuilder: (_, i) {
+                      final a = _amigos[i];
+                      return AmigoListItem(
+                        nombre: a.nombre,
+                        amigosEnComun: a.amigosEnComun,
+                        imagenPerfil: a.imagenPerfil,
+                        onQuitarAmigo: () => _confirmarYEliminarAmigo(a),
+                      );
+                    },
+                  ),
           ),
         ],
       ),

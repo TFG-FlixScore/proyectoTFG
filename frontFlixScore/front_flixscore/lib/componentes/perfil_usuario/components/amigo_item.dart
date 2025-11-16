@@ -25,18 +25,17 @@ class AmigoListItem extends StatelessWidget {
       padding: const EdgeInsets.symmetric(vertical: 8.0),
       child: Row(
         children: [
-          // Espacio para la foto de perfil del amigo (usaremos un icono de persona por ahora)
           CircleAvatar(
             backgroundColor: Colors.grey.shade700,
-            backgroundImage: imagenPerfil != null
+            backgroundImage: (imagenPerfil?.isNotEmpty ?? false)
                 ? CachedNetworkImageProvider(imagenPerfil!)
                 : null,
-            child: imagenPerfil == null
+            child: (imagenPerfil?.isEmpty ?? true)
                 ? Text(
                     nombre.isNotEmpty ? nombre[0].toUpperCase() : '?',
                     style: const TextStyle(
                       color: Colors.white,
-                      fontWeight: FontWeight.bold,
+                      fontWeight: FontWeight.w100,
                       fontSize: 20,
                     ),
                   )

@@ -32,24 +32,10 @@ class _MisCriticasCardState extends State<MisCriticasCard> {
 
     for (final critica in criticas) {
       try {
-        final uri = Uri.parse(
-                'https://backend-proyectotfg-600260085391.europe-southwest1.run.app/tmdb/v1/peliculasPorId')
-            .replace(queryParameters: {'id': critica.peliculaID.toString()});
-
-        final response = await http.get(uri);
-
-        if (response.statusCode == 200) {
-          final List<dynamic> jsonList = json.decode(response.body);
-          if (jsonList.isNotEmpty) {
-            final pelicula = ModeloPelicula.fromJson(jsonList.first);
-            lista.add(_CriticaConPelicula(critica: critica, pelicula: pelicula));
-          } else {
-            lista.add(_CriticaConPelicula(critica: critica, pelicula: null));
-          }
-        } else {
-          lista.add(_CriticaConPelicula(critica: critica, pelicula: null));
-        }
+        final pelicula = await _apiService.getMovieByID(critica.peliculaID.toString());
+        lista.add(_CriticaConPelicula(critica: critica, pelicula: pelicula));
       } catch (e) {
+        // Si falla, igual añadimos la crítica pero sin película
         lista.add(_CriticaConPelicula(critica: critica, pelicula: null));
       }
     }

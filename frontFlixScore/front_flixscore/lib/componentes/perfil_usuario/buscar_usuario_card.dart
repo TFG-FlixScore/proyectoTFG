@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:flixscore/controllers/login_provider.dart';
 
 const Color _primaryTextColor = Colors.white;
 const Color _subtitleColor = Color(0xFF9CA3AF);
@@ -7,11 +9,11 @@ const Color _cardBackgroundColor = Color(0xFF1A1C25);
 const Color _inputBackgroundColor = Color(0xFF1F2937);
 
 class BuscarUsuarioCard extends StatefulWidget {
-  final ValueChanged<String> onSearch;
+  final VoidCallback onAmigoAgregado;
 
   const BuscarUsuarioCard({
     super.key,
-    required this.onSearch,
+    required this.onAmigoAgregado,
   });
 
   @override
@@ -31,11 +33,19 @@ class BuscarUsuarioCardState extends State<BuscarUsuarioCard> {
     super.dispose();
   }
 
-  void _simularBusqueda() {
+  void _simularBusqueda(BuildContext context) async {
     final query = _searchController.text.trim();
-    if (query.isNotEmpty) {
-      widget.onSearch(query);
-      FocusScope.of(context).unfocus();
+    if (query.isEmpty) return;
+    
+    FocusScope.of(context).unfocus(); 
+
+    final provider = Provider.of<LoginProvider>(context, listen: false);
+    
+    final bool agregadoExitosamente = await provider.buscarYAgregarAmigo(context, query);
+
+    if (agregadoExitosamente) {
+      clearText();
+      widget.onAmigoAgregado(); 
     }
   }
 
@@ -77,7 +87,7 @@ class BuscarUsuarioCardState extends State<BuscarUsuarioCard> {
           const SizedBox(height: 20),
           TextField(
             controller: _searchController,
-            onSubmitted: (_) => _simularBusqueda(),
+            onSubmitted: (_) => _simularBusqueda(context), 
             style: const TextStyle(color: _primaryTextColor),
             decoration: InputDecoration(
               hintText: 'Ejemplo: NickAmigote123',
@@ -85,7 +95,7 @@ class BuscarUsuarioCardState extends State<BuscarUsuarioCard> {
               prefixIcon: const Icon(Icons.person_search_outlined, color: _subtitleColor),
               suffixIcon: IconButton(
                 icon: const Icon(Icons.search, color: _subtitleColor),
-                onPressed: _simularBusqueda,
+                onPressed: () => _simularBusqueda(context), 
                 tooltip: 'Buscar',
               ),
               fillColor: _inputBackgroundColor,

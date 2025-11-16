@@ -4,8 +4,9 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:flixscore/service/api_service.dart';
 import 'package:flixscore/componentes/common/snack_bar.dart';
+import 'package:provider/provider.dart';
+import 'package:flixscore/controllers/login_provider.dart';
 
 class FotoPerfilUsuarioCard extends StatefulWidget {
   final String nickUsuario;
@@ -52,11 +53,9 @@ class _FotoPerfilUsuarioCardState extends State<FotoPerfilUsuarioCard> {
               children: [
                 CircularProgressIndicator(color: Colors.cyanAccent),
                 SizedBox(height: 16),
-                Text('Subiendo imagen...', 
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 18,
-                  ),
+                Text(
+                  'Subiendo imagen...',
+                  style: TextStyle(color: Colors.white, fontSize: 18),
                 ),
               ],
             ),
@@ -66,12 +65,13 @@ class _FotoPerfilUsuarioCardState extends State<FotoPerfilUsuarioCard> {
       Overlay.of(context).insert(subiendoImagen);
 
       final nuevaUrl = await _subirImagen(fileData);
-      await ApiService().cambiarImagenPerfil(widget.usuarioId, nuevaUrl);
 
-      setState(() => _urlImagen = nuevaUrl);
+      // Limpieza de caché
+      await CachedNetworkImage.evictFromCache(_urlImagen ?? '');
+      await CachedNetworkImage.evictFromCache(nuevaUrl);
+
+      // Actualiza provider y notifica
       widget.onImagenActualizada(nuevaUrl);
-
-      if (mounted) mostrarSnackBarExito(context, "Foto actualizada con éxito.");
     } catch (e) {
       if (mounted) mostrarSnackBarError(context, _obtenerMensajeError(e));
     } finally {
@@ -163,24 +163,28 @@ class _FotoPerfilUsuarioCardState extends State<FotoPerfilUsuarioCard> {
 
   @override
   Widget build(BuildContext context) {
-    final safeUrl = _urlImagen ?? "https://dummyimage.com/100x100/333333/aaaaaa.png&text=F";
-
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
       decoration: BoxDecoration(
         color: const Color(0xFF1A1C25),
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
-          BoxShadow(color: Colors.black.withOpacity(0.2), blurRadius: 10, offset: const Offset(0, 5)),
+          BoxShadow(
+            color: Colors.black.withOpacity(0.2),
+            blurRadius: 10,
+            offset: const Offset(0, 5),
+          ),
         ],
       ),
       padding: const EdgeInsets.all(16.0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text("Foto de Perfil", style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold)),
+          const Text("Foto de Perfil",
+              style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold)),
           const SizedBox(height: 6),
-          const Text("Cambia aquí como te ven tus amigos.", style: TextStyle(color: Color(0xFFAAAAAA), fontSize: 14)),
+          const Text("Cambia aquí como te ven tus amigos.",
+              style: TextStyle(color: Color(0xFFAAAAAA), fontSize: 14)),
           const SizedBox(height: 19),
           const Divider(height: 20, color: Color(0xFF333333)),
           const SizedBox(height: 19),
@@ -204,24 +208,38 @@ class _FotoPerfilUsuarioCardState extends State<FotoPerfilUsuarioCard> {
                           radius: 52,
                           backgroundColor: Colors.grey.shade700,
                           child: ClipOval(
-                            child: CachedNetworkImage(
-                              imageUrl: safeUrl,
-                              width: 104,
-                              height: 104,
-                              fit: BoxFit.cover,
-                              placeholder: (_, __) => const Center(
-                                child: SizedBox(
-                                  width: 50,
-                                  height: 50,
-                                  child: CircularProgressIndicator(strokeWidth: 2, color: Colors.cyan),
-                                ),
-                              ),
-                              errorWidget: (_, __, ___) => Center(
-                                child: Text(
-                                  widget.nickUsuario.isNotEmpty ? widget.nickUsuario[0].toUpperCase() : '?',
-                                  style: const TextStyle(fontSize: 55, fontWeight: FontWeight.bold, color: Colors.white),
-                                ),
-                              ),
+                            child: Consumer<LoginProvider>(
+                              builder: (_, provider, __) {
+                                final urlActual =
+                                    provider.usuarioLogueado?.imagenPerfil ??
+                                        widget.urlImagenInicial ??
+                                        "https://dummyimage.com/100x100/333333/aaaaaa.png&text=F";
+                                return CachedNetworkImage(
+                                  imageUrl: urlActual,
+                                  width: 104,
+                                  height: 104,
+                                  fit: BoxFit.cover,
+                                  placeholder: (_, __) => const Center(
+                                    child: SizedBox(
+                                      width: 50,
+                                      height: 50,
+                                      child: CircularProgressIndicator(
+                                          strokeWidth: 2, color: Colors.cyan),
+                                    ),
+                                  ),
+                                  errorWidget: (_, __, ___) => Center(
+                                    child: Text(
+                                      widget.nickUsuario.isNotEmpty
+                                          ? widget.nickUsuario[0].toUpperCase()
+                                          : '?',
+                                      style: const TextStyle(
+                                          fontSize: 55,
+                                          fontWeight: FontWeight.bold,
+                                          color: Colors.white),
+                                    ),
+                                  ),
+                                );
+                              },
                             ),
                           ),
                         ),
@@ -234,7 +252,8 @@ class _FotoPerfilUsuarioCardState extends State<FotoPerfilUsuarioCard> {
                           decoration: BoxDecoration(
                             color: const Color(0xFF333333),
                             shape: BoxShape.circle,
-                            border: Border.all(color: const Color(0xFFAAAAAA), width: 1),
+                            border: Border.all(
+                                color: const Color(0xFFAAAAAA), width: 1),
                           ),
                           child: const Icon(Icons.edit, size: 12, color: Colors.white),
                         ),
@@ -247,9 +266,15 @@ class _FotoPerfilUsuarioCardState extends State<FotoPerfilUsuarioCard> {
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(widget.nickUsuario, style: const TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold)),
+                  Text(widget.nickUsuario,
+                      style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold)),
                   const SizedBox(height: 4),
-                  Text(widget.emailUsuario, style: const TextStyle(color: Color(0xFFAAAAAA), fontSize: 14)),
+                  Text(widget.emailUsuario,
+                      style: const TextStyle(
+                          color: Color(0xFFAAAAAA), fontSize: 14)),
                 ],
               ),
             ],

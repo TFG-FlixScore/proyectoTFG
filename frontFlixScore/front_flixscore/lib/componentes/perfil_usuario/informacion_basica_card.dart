@@ -1,6 +1,7 @@
+import 'package:flixscore/controllers/login_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flixscore/componentes/common/snack_bar.dart';
-import 'package:flixscore/service/api_service.dart';
+import 'package:provider/provider.dart';
 
 const Color _primaryTextColor = Colors.white;
 const Color _subtitleColor = Color(0xFF9CA3AF);
@@ -12,9 +13,10 @@ const Color _accentColor = Color(0xFFEF4444);
 class InformacionBasicaCard extends StatefulWidget {
   final String nombreRecibido;
   final String emailRecibido;
-  final String fechaRegistro;
+  final DateTime? fechaRegistro;
   final String usuarioId;
   final Function(String) onNickActualizado;
+  final VoidCallback onCuentaEliminada;
 
   const InformacionBasicaCard({
     super.key,
@@ -23,6 +25,7 @@ class InformacionBasicaCard extends StatefulWidget {
     required this.fechaRegistro,
     required this.usuarioId,
     required this.onNickActualizado,
+    required this.onCuentaEliminada,
   });
 
   @override
@@ -44,6 +47,13 @@ class _InformacionBasicaCardState extends State<InformacionBasicaCard> {
     super.dispose();
   }
 
+    String _formatearFecha(DateTime? fecha) {
+      if (fecha == null) return 'Desconocida';
+      return '${fecha.day.toString().padLeft(2, '0')}-'
+            '${fecha.month.toString().padLeft(2, '0')}-'
+            '${fecha.year}';
+    }
+
   Future<void> _guardarCambios() async {
     final nuevoNick = _nickController.text.trim();
     if (nuevoNick.isEmpty) {
@@ -52,52 +62,13 @@ class _InformacionBasicaCardState extends State<InformacionBasicaCard> {
     }
 
     try {
-      await ApiService().cambiarNick(widget.usuarioId, nuevoNick);
+      await Provider.of<LoginProvider>(context, listen: false).actualizarNick(nuevoNick);
       if (!mounted) return;
       mostrarSnackBarExito(context, "Nick actualizado con éxito");
       widget.onNickActualizado(nuevoNick);
     } catch (e) {
       if (!mounted) return;
       mostrarSnackBarError(context, "Error al actualizar nick: $e");
-    }
-  }
-
-  Future<void> _confirmarYEliminarCuenta() async {
-    final confirmado = await showDialog<bool>(
-      context: context,
-      builder: (_) => AlertDialog(
-        backgroundColor: _cardBackgroundColor,
-        title: const Text(
-          '¿Eliminar cuenta?',
-          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
-        ),
-        content: const Text(
-          'Esta acción no se puede deshacer. ¿Estás seguro?',
-          style: TextStyle(color: _subtitleColor),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(false),
-            child: const Text('Cancelar', style: TextStyle(color: Colors.white70)),
-          ),
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(true),
-            child: const Text('Eliminar', style: TextStyle(color: Colors.redAccent)),
-          ),
-        ],
-      ),
-    );
-
-    if (confirmado != true) return;
-
-    try {
-      await ApiService().deleteUsuario(widget.usuarioId);
-      if (!mounted) return;
-      mostrarSnackBarExito(context, "Cuenta eliminada con éxito.");
-      Navigator.pushReplacementNamed(context, '/login');
-    } catch (e) {
-      if (!mounted) return;
-      mostrarSnackBarError(context, "Error al eliminar cuenta: $e");
     }
   }
 
@@ -156,7 +127,7 @@ class _InformacionBasicaCardState extends State<InformacionBasicaCard> {
 
           _TextoNoEditable(
             titulo: "Fecha de registro",
-            hintText: widget.fechaRegistro,
+            hintText: _formatearFecha(widget.fechaRegistro),
             icono: Icons.calendar_month_outlined,
             textoAyuda: "Fecha en la que te registraste",
           ),
@@ -166,7 +137,14 @@ class _InformacionBasicaCardState extends State<InformacionBasicaCard> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               ElevatedButton(
-                onPressed: _confirmarYEliminarCuenta,
+                onPressed: () async {
+                  final provider = Provider.of<LoginProvider>(context, listen: false);
+                  final bool success = await provider.eliminarCuentaDefinitivamente(context);
+
+                  if (success) {
+                    widget.onCuentaEliminada(); 
+                  }
+                },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: _accentColor,
                   foregroundColor: Colors.white,

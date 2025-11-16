@@ -5,7 +5,7 @@ import 'package:http/http.dart' as http;
 
 class PeliculaService {
 
-  static const String _baseUrl = "https://backend-proyectotfg-600260085391.europe-southwest1.run.app/tmdb/v1/peliculasPorNombre";
+  static const String _baseUrl = "https://tfg-backend-152779337859.europe-west1.run.app/";
 
     Future<List<Pelicula>> buscarPeliculas(String query) async {
     try {

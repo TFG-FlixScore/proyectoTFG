@@ -11,12 +11,14 @@ class TarjetaCritica extends StatelessWidget {
   final ModeloCritica critica;
   final ModeloPelicula? pelicula;
   final VoidCallback onEditar;
+  final bool editable;
 
   const TarjetaCritica({
     super.key,
     required this.critica,
     required this.pelicula,
     required this.onEditar,
+    required this.editable,
   });
 
   String _formatearFecha(int? timestamp) {
@@ -125,11 +127,13 @@ class TarjetaCritica extends StatelessWidget {
                               ),
                             ),
                             const Spacer(),
+                            editable
+                            ? 
                             IconButton(
-                              icon: const Icon(Icons.edit,
-                                  color: _subtitleColor, size: 18),
-                              onPressed: onEditar,
-                            ),
+                                icon: const Icon(Icons.edit, color: _subtitleColor, size: 18),
+                                onPressed: onEditar,
+                              )
+                            : const SizedBox(height: 40),
                           ],
                         ),
                         Expanded(

@@ -89,7 +89,7 @@ class RegisterProvider extends ChangeNotifier {
         "correo": email,
         "nick": username,
         "imagen_perfil": "",
-        "amigos_ids": [],
+        "amigos_id": [],
         "peliculas_criticadas": [],
         "peliculas_favoritas": [],
         "peliculas_vistas": [],

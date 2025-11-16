@@ -1,26 +1,35 @@
+import 'package:flixscore/componentes/common/snack_bar.dart';
 import 'package:flixscore/componentes/home/components/resumen_pelicula.dart';
+import 'package:flixscore/modelos/critica_modelo.dart';
 import 'package:flixscore/modelos/pelicula_model.dart';
+import 'package:flixscore/modelos/usuario_modelo.dart';
 import 'package:flutter/material.dart';
 
 class PeliculaCard extends StatelessWidget {
   final Pelicula pelicula;
+  final ModeloCritica? critica;
+  final ModeloUsuario? usuario;
 
-  const PeliculaCard({super.key, required this.pelicula});
+  const PeliculaCard({super.key, required this.pelicula, this.critica, this.usuario});
 
   @override
   Widget build(BuildContext context) {
     return LayoutBuilder(
       builder: (context, constraints) {
         return IntrinsicHeight(
-          child: Card(
-            color: const Color(0xFF1F2937),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(16),
-            ),
-            elevation: 4,
-            child: Padding(
-              padding: const EdgeInsets.all(16),
-              child: _tarjetaLayout(),
+          child: InkWell(
+            borderRadius: BorderRadius.circular(16),
+            onTap: () => mostrarSnackBarExito(context, "Clickada ${pelicula.titulo}"),
+            child: Card(
+              color: const Color(0xFF1F2937),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(16),
+              ),
+              elevation: 4,
+              child: Padding(
+                padding: const EdgeInsets.all(16),
+                child: _tarjetaLayout(),
+              ),
             ),
           ),
         );
@@ -68,7 +77,7 @@ class PeliculaCard extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                "Carlos Ruiz:",
+                usuario?.nick ?? "",
                 style: const TextStyle(
                   color: Colors.white,
                   fontSize: 12,
@@ -77,7 +86,7 @@ class PeliculaCard extends StatelessWidget {
               ),
               const SizedBox(height: 4),
               Text(
-                '"Una obra maestra del cine moderno. La narrativa compleja y los efectos visuales..."',
+                critica?.comentario ?? "",
                 style: TextStyle(
                   color: Colors.grey[300],
                   fontSize: 11,

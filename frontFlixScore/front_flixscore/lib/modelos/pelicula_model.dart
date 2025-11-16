@@ -23,5 +23,4 @@ class Pelicula {
       rutaPoster: json['rutaPoster'] ?? '',
     );
   }
-
 }

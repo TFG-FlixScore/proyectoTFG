@@ -1,7 +1,9 @@
-import 'package:flixscore/componentes/home/card_pelicula.dart';
+
+import 'package:flixscore/controllers/login_provider.dart';
 import 'package:flixscore/modelos/pelicula_model.dart';
 import 'package:flixscore/servicios/tmdb_service.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 class PopularLayout extends StatefulWidget {
   const PopularLayout({super.key});
@@ -12,6 +14,7 @@ class PopularLayout extends StatefulWidget {
 
 class _PopularLayoutState extends State<PopularLayout> {
   // Instanciamos PeliculasService
+  
   final PeliculaService _service = PeliculaService();
 
   // Variables de uso local
@@ -31,11 +34,15 @@ class _PopularLayoutState extends State<PopularLayout> {
         _cargando = true;
         _error = null;
       });
-
-      final peliculas = await _service.buscarPeliculas("malditos");
+      final loginProvider = Provider.of<LoginProvider>(context, listen: false);
+      final usuario = loginProvider.usuarioLogueado;
+      
+      for (var amigo in usuario!.amigosId) {
+        
+      }
 
       setState(() {
-        _peliculas = peliculas;
+        // _peliculas = peliculas;
         _cargando = false;
       });
     } catch (e) {
@@ -50,10 +57,6 @@ class _PopularLayoutState extends State<PopularLayout> {
 
   @override
   Widget build(BuildContext context) {
-    return _buildContent();
-  }
-
-  Widget _buildContent() {
     if (_cargando) {
       return const Center(child: CircularProgressIndicator(color: Colors.cyan));
     }
@@ -115,7 +118,7 @@ class _PopularLayoutState extends State<PopularLayout> {
         final pelicula = _peliculas[index];
         return Padding(
           padding: const EdgeInsets.only(bottom: 16),
-          child: PeliculaCard(pelicula: pelicula),
+          //child: PeliculaCard(pelicula: pelicula),
         );
       },
     );
@@ -134,7 +137,7 @@ class _PopularLayoutState extends State<PopularLayout> {
         children: _peliculas.map((pelicula) {
           return SizedBox(
             width: anchoCard,
-            child: PeliculaCard(pelicula: pelicula),
+            //child: PeliculaCard(pelicula: pelicula),
           );
         }).toList(),
       ),

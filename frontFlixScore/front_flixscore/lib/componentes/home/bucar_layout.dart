@@ -188,7 +188,7 @@ class _BuscarLayoutState extends State<BuscarLayout> {
         final pelicula = _peliculas[index];
         return Padding(
           padding: const EdgeInsets.only(bottom: 16),
-          child: PeliculaCard(pelicula: pelicula),
+          child: PeliculaCard(pelicula: pelicula, critica: null, usuario: null),
         );
       },
     );

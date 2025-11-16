@@ -451,16 +451,7 @@ class LoginProvider extends ChangeNotifier {
       if (user != null) {
           await user.delete(); 
       }
-
-      
-      /*Navigator.of(context).pushAndRemoveUntil(
-        MaterialPageRoute(
-          builder: (context) => const LoginScreen(),
-        ),
-        (Route<dynamic> route) => false,
-      );*/
       mostrarSnackBarExito(context, "Tu cuenta ha sido eliminada exitosamente.");
-      
       return true; 
     } catch (e) {
       mostrarSnackBarError(context, "Error al eliminar la cuenta: ${e.toString().split(':').last.trim()}");

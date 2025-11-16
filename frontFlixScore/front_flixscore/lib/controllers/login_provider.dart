@@ -10,6 +10,8 @@ import 'package:flutter/material.dart';
 enum AuthStatus { noAutenticado, autenticado, autenticando }
 
 class LoginProvider extends ChangeNotifier {
+
+
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
@@ -19,14 +21,19 @@ class LoginProvider extends ChangeNotifier {
   AuthStatus _status = AuthStatus.noAutenticado;
   AuthStatus get status => _status;
 
+  ApiService apiService = ApiService();
+
   String? _errorMessage;
   
   List<ModeloUsuario> _amigosObj = [];
   List<ModeloUsuario> get amigosObj => _amigosObj;
   String? get errorMessage => _errorMessage;
 
-  bool get isAuthenticated => _status == AuthStatus.autenticado && _usuarioLogueado != null;
+  bool get isAuthenticated =>
+      _status == AuthStatus.autenticado && _usuarioLogueado != null;
 
+
+  // Constructor que esta pendiente de cambios en el estado de autenticación
   LoginProvider() {
     _auth.authStateChanges().listen((User? user) async {
       if (user == null) {
@@ -39,7 +46,7 @@ class LoginProvider extends ChangeNotifier {
     });
   }
 
-  // Método interno
+  // Recargamos datos del usuario 
   Future<void> _cargarDatosUsuario(String uid) async {
     try {
       _status = AuthStatus.autenticando;
@@ -79,6 +86,7 @@ class LoginProvider extends ChangeNotifier {
     required String email,
     required String password,
   }) async {
+
     try {
       _status = AuthStatus.autenticando;
       _errorMessage = null;
@@ -133,10 +141,9 @@ class LoginProvider extends ChangeNotifier {
       } else {
         _errorMessage = 'Error de autenticación: ${e.message}';
       }
-      
+
       notifyListeners();
       throw Exception(_errorMessage);
-
     } catch (e) {
       _status = AuthStatus.noAutenticado;
       _usuarioLogueado = null;
@@ -183,6 +190,8 @@ class LoginProvider extends ChangeNotifier {
         notifyListeners();
       }
     } catch (e) {
+
+      // TODO: Manejar error adecuadamente
       print('Error al actualizar usuario: $e');
     }
   }

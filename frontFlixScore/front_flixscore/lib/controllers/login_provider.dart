@@ -310,6 +310,11 @@ class LoginProvider extends ChangeNotifier {
   Future<void> loginGoogle() async {
 
     try {
+      _status = AuthStatus.autenticando;
+      _errorMessage = null;
+      notifyListeners();
+      final GoogleSignIn googleSignIn = GoogleSignIn.instance;
+      await googleSignIn.initialize(clientId: "1:152779337859:android:a3b871c45dba44ff886bb6");
 
       final GoogleSignInAccount googleUser = await GoogleSignIn.instance.authenticate();
       final GoogleSignInAuthentication googleAuth = googleUser.authentication;
@@ -318,7 +323,8 @@ class LoginProvider extends ChangeNotifier {
 
       UserCredential userCredential = await _auth.signInWithCredential(credenciales);
         
-      // ESTE CODIGO SE REPITE EN TODOS LOS LOGINS
+      // ESTE CODIGO SE REPITE EN TODOS LOS LOGGINS
+      // TENDRIA QUE REFACTORIZAR
 
       if (userCredential.user == null) {
         _status = AuthStatus.noAutenticado;

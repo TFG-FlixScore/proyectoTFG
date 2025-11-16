@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 
-// Widget que representa un único amigo en la lista
 class AmigoListItem extends StatelessWidget {
   final String nombre;
   final int amigosEnComun;
   final String? imagenPerfil;
-  final VoidCallback onQuitarAmigo; // Callback para la acción de "Quitar amigo"
+  final VoidCallback onQuitarAmigo;
+  final VoidCallback onTapPerfil;   // <-- nuevo
 
   const AmigoListItem({
     super.key,
@@ -14,6 +14,7 @@ class AmigoListItem extends StatelessWidget {
     required this.amigosEnComun,
     this.imagenPerfil,
     required this.onQuitarAmigo,
+    required this.onTapPerfil,
   });
 
   static const Color primaryTextColor = Colors.white;
@@ -21,73 +22,71 @@ class AmigoListItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8.0),
-      child: Row(
-        children: [
-          CircleAvatar(
-            backgroundColor: Colors.grey.shade700,
-            backgroundImage: (imagenPerfil?.isNotEmpty ?? false)
-                ? CachedNetworkImageProvider(imagenPerfil!)
-                : null,
-            child: (imagenPerfil?.isEmpty ?? true)
-                ? Text(
-                    nombre.isNotEmpty ? nombre[0].toUpperCase() : '?',
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.w100,
-                      fontSize: 20,
+    return Material(                       // necesario para que el splash se vea
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onTapPerfil,                // <-- abre el perfil
+        borderRadius: BorderRadius.circular(12),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 8.0),
+          child: Row(
+            children: [
+              const SizedBox(width: 8),
+              CircleAvatar(
+                backgroundColor: Colors.grey.shade700,
+                backgroundImage: (imagenPerfil?.isNotEmpty ?? false)
+                    ? CachedNetworkImageProvider(imagenPerfil!)
+                    : null,
+                child: (imagenPerfil?.isEmpty ?? true)
+                    ? Text(
+                        nombre.isNotEmpty ? nombre[0].toUpperCase() : '?',
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.w100,
+                          fontSize: 20,
+                        ),
+                      )
+                    : null,
+              ),
+              const SizedBox(width: 16),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      nombre,
+                      style: const TextStyle(
+                        color: primaryTextColor,
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
+                      ),
                     ),
-                  )
-                : null,
-          ),
-          const SizedBox(width: 16),
-
-          // Nombre y Amigos en Común
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  nombre,
-                  style: const TextStyle(
-                    color: primaryTextColor,
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600,
-                  ),
+                    const SizedBox(height: 4),
+                    Text(
+                      amigosEnComun == 1
+                          ? '$amigosEnComun amigo en común'
+                          : '$amigosEnComun amigos en común',
+                      style: const TextStyle(
+                        color: secondaryTextColor,
+                        fontSize: 12,
+                      ),
+                    )
+                  ],
                 ),
-                const SizedBox(height: 4),
-                Text(
-                  amigosEnComun == 1
-                      ? '$amigosEnComun amigo en común'
-                      : '$amigosEnComun amigos en común',
-                  style: const TextStyle(
-                    color: secondaryTextColor,
-                    fontSize: 12,
-                  ),
-                )
-              ],
-            ),
-          ),
-
-          // Botón/Icono de Quitar Amigo
-          InkWell(
-            onTap: onQuitarAmigo,
-            child: Container(
-              padding: const EdgeInsets.all(8),
-              decoration: BoxDecoration(
-                color: Colors.transparent, // Transparente para que solo se vea el icono
-                borderRadius: BorderRadius.circular(20),
               ),
-              child: const Icon(
-                Icons.person_remove_outlined, // Icono para 'quitar amigo'
-                color: secondaryTextColor,
-                size: 24,
+              // Botón separado: NO abre el perfil
+              IconButton(
+                onPressed: onQuitarAmigo,
+                icon: const Icon(
+                  Icons.person_remove_outlined,
+                  color: secondaryTextColor,
+                  size: 24,
+                ),
               ),
-            ),
+              const SizedBox(width: 8),
+            ],
           ),
-          const SizedBox(width: 10.0),
-        ],
+        ),
       ),
     );
   }

@@ -1,3 +1,4 @@
+import 'package:flixscore/paginas/perfil_amigo_page.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'components/amigo_item.dart';
@@ -138,11 +139,28 @@ class _ListaAmigosCardState extends State<ListaAmigosCard> {
                     itemCount: _amigos.length,
                     itemBuilder: (_, i) {
                       final a = _amigos[i];
-                      return AmigoListItem(
-                        nombre: a.nombre,
-                        amigosEnComun: a.amigosEnComun,
-                        imagenPerfil: a.imagenPerfil,
-                        onQuitarAmigo: () => _confirmarYEliminarAmigo(a),
+                      return GestureDetector(
+                        onTap: () {
+                          Navigator.of(context).push(
+                            MaterialPageRoute(
+                              builder: (_) => PerfilAmigoPage(usuarioId: a.documentID!, nickUsuario: a.nombre,),
+                            ),
+                          );
+                        },
+                        child: AmigoListItem(
+                          nombre: a.nombre,
+                          amigosEnComun: a.amigosEnComun,
+                          imagenPerfil: a.imagenPerfil,
+                          onQuitarAmigo: () => _confirmarYEliminarAmigo(a),
+                          onTapPerfil: () => Navigator.of(context).push(
+                            MaterialPageRoute(
+                              builder: (_) => PerfilAmigoPage(
+                                usuarioId: a.documentID!,
+                                nickUsuario: a.nombre,
+                              ),
+                            ),
+                          ),
+                        )
                       );
                     },
                   ),

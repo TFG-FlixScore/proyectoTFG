@@ -248,7 +248,7 @@ class _PerfilUsuarioState extends State<PerfilUsuario> {
           ),
           const SizedBox(height: 10),
         ] else
-          MisCriticasCard(usuarioId: currentUserId)
+          MisCriticasCard(usuarioId: currentUserId, editable: true,)
       ],
     );
   }
@@ -288,7 +288,7 @@ class _PerfilUsuarioState extends State<PerfilUsuario> {
               : Column(
                   children: [
                     _buildTabSelector(),
-                    MisCriticasCard(usuarioId: currentUserId),
+                    MisCriticasCard(usuarioId: currentUserId, editable: true,),
                   ],
                 ),
         ),

@@ -42,7 +42,7 @@ class _PopularLayoutState extends State<PopularLayout> {
       }
 
       setState(() {
-        // _peliculas = peliculas;
+        //_peliculas = peliculas;
         _cargando = false;
       });
     } catch (e) {

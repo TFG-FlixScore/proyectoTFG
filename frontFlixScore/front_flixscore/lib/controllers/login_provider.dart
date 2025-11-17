@@ -2,10 +2,10 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flixscore/componentes/common/snack_bar.dart';
 import 'package:flixscore/modelos/usuario_modelo.dart';
-import 'package:flixscore/paginas/login_page.dart';
 import 'package:flixscore/service/api_service.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 
 enum AuthStatus { noAutenticado, autenticado, autenticando }
 
@@ -229,6 +229,159 @@ class LoginProvider extends ChangeNotifier {
         await logout();
       }
       notifyListeners();
+    }
+  }
+
+  Future<void> loginGoogleWeb() async {
+    try {
+      // Seteamos el estado a autenticando
+      _status = AuthStatus.autenticando;
+      _errorMessage = null;
+      notifyListeners();
+
+      // Lanzamos el popup de autenticación de Google
+      GoogleAuthProvider googleProvider = GoogleAuthProvider();
+      googleProvider.addScope(
+        "https://www.googleapis.com/auth/contacts.readonly",
+      );
+
+      final UserCredential userCredential = await _auth.signInWithPopup(
+        googleProvider,
+      );
+      if (userCredential.user == null) {
+        _status = AuthStatus.noAutenticado;
+        _usuarioLogueado = null;
+        _errorMessage = 'Error de autenticación con Google:';
+        notifyListeners();
+        throw Exception('Error al autenticar usuario con Google');
+      }
+
+      final DocumentSnapshot userDoc = await _firestore
+          .collection("usuarios")
+          .doc(userCredential.user!.uid)
+          .get();
+
+      // Si el usuario no existe en la base de datos, lo creamos
+
+      if (!userDoc.exists) {
+        apiService.addUsuario(
+          ModeloUsuario(
+            documentID: userCredential.user!.uid,
+            correo: userCredential.user!.email ?? "",
+            imagenPerfil: userCredential.user!.photoURL ?? "",
+            nick: userCredential.user!.displayName ?? "Usuario",
+            amigosId: [],
+            peliculasCriticadas: [],
+            peliculasFavoritas: [],
+            peliculasVistas: [],
+          ),
+        );
+      } else {
+        _usuarioLogueado = ModeloUsuario(
+          documentID: userCredential.user!.uid,
+          correo: userDoc.get("correo"),
+          imagenPerfil: userDoc.get("imagen_perfil") ?? "",
+          nick: userDoc.get("nick"),
+          amigosId: List<String>.from(userDoc.get("amigos_ids") ?? []),
+          peliculasCriticadas: List<int>.from(
+            userDoc.get("peliculas_criticadas") ?? [],
+          ),
+          peliculasFavoritas: List<int>.from(
+            userDoc.get("peliculas_favoritas") ?? [],
+          ),
+          peliculasVistas: List<int>.from(
+            userDoc.get("peliculas_vistas") ?? [],
+          ),
+        );
+      }
+
+      _status = AuthStatus.autenticado;
+      _errorMessage = null;
+      notifyListeners();
+    } catch (e) {
+      _status = AuthStatus.noAutenticado;
+      _usuarioLogueado = null;
+      _errorMessage = 'Error de autenticación con Google: $e';
+      notifyListeners();
+      throw Exception(_errorMessage);
+    }
+  }
+
+  Future<void> loginGoogle() async {
+
+    try {
+      _status = AuthStatus.autenticando;
+      _errorMessage = null;
+      notifyListeners();
+      final GoogleSignIn googleSignIn = GoogleSignIn.instance;
+      await googleSignIn.initialize(clientId: "1:152779337859:android:a3b871c45dba44ff886bb6");
+
+      final GoogleSignInAccount googleUser = await GoogleSignIn.instance.authenticate();
+      final GoogleSignInAuthentication googleAuth = googleUser.authentication;
+
+      final credenciales = GoogleAuthProvider.credential(idToken: googleAuth.idToken);
+
+      UserCredential userCredential = await _auth.signInWithCredential(credenciales);
+        
+      // ESTE CODIGO SE REPITE EN TODOS LOS LOGGINS
+      // TENDRIA QUE REFACTORIZAR
+
+      if (userCredential.user == null) {
+        _status = AuthStatus.noAutenticado;
+        _usuarioLogueado = null;
+        _errorMessage = 'Error de autenticación con Google:';
+        notifyListeners();
+        throw Exception('Error al autenticar usuario con Google');
+      }
+
+      final DocumentSnapshot userDoc = await _firestore
+          .collection("usuarios")
+          .doc(userCredential.user!.uid)
+          .get();
+
+      // Si el usuario no existe en la base de datos, lo creamos
+
+      if (!userDoc.exists) {
+        apiService.addUsuario(
+          ModeloUsuario(
+            documentID: userCredential.user!.uid,
+            correo: userCredential.user!.email ?? "",
+            imagenPerfil: userCredential.user!.photoURL ?? "",
+            nick: userCredential.user!.displayName ?? "Usuario",
+            amigosId: [],
+            peliculasCriticadas: [],
+            peliculasFavoritas: [],
+            peliculasVistas: [],
+          ),
+        );
+      } else {
+        _usuarioLogueado = ModeloUsuario(
+          documentID: userCredential.user!.uid,
+          correo: userDoc.get("correo"),
+          imagenPerfil: userDoc.get("imagen_perfil") ?? "",
+          nick: userDoc.get("nick"),
+          amigosId: List<String>.from(userDoc.get("amigos_ids") ?? []),
+          peliculasCriticadas: List<int>.from(
+            userDoc.get("peliculas_criticadas") ?? [],
+          ),
+          peliculasFavoritas: List<int>.from(
+            userDoc.get("peliculas_favoritas") ?? [],
+          ),
+          peliculasVistas: List<int>.from(
+            userDoc.get("peliculas_vistas") ?? [],
+          ),
+        );
+      }
+
+      _status = AuthStatus.autenticado;
+      _errorMessage = null;
+      notifyListeners();
+    } catch (e) {
+      _status = AuthStatus.noAutenticado;
+      _usuarioLogueado = null;
+      _errorMessage = 'Error de autenticación con Google: $e';
+      notifyListeners();
+      throw Exception(_errorMessage);
     }
   }
 

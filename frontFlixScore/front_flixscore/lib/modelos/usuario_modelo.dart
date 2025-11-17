@@ -7,6 +7,8 @@ class ModeloUsuario {
   final List<int> peliculasCriticadas;
   final List<int> peliculasFavoritas;
   final List<int> peliculasVistas;
+  final DateTime? fechaRegistro;
+  final List<int> puntuaciones;
 
   ModeloUsuario({
     this.documentID,
@@ -17,6 +19,8 @@ class ModeloUsuario {
     required this.peliculasCriticadas,
     required this.peliculasFavoritas,
     required this.peliculasVistas,
+    this.fechaRegistro,
+    this.puntuaciones = const [],
   });
 
   factory ModeloUsuario.fromJson(Map<String, dynamic> json) {
@@ -46,4 +50,30 @@ class ModeloUsuario {
       'peliculas_vistas': peliculasVistas,
     };
   }
+
+  ModeloUsuario copyWith({
+    String? documentID,
+    String? correo,
+    String? imagenPerfil,
+    String? nick,
+    List<String>? amigosId,
+    List<int>? peliculasCriticadas,
+    List<int>? peliculasFavoritas,
+    List<int>? peliculasVistas,
+    DateTime? fechaRegistro, 
+    List<int>? puntuaciones, 
+ }) {
+    return ModeloUsuario(
+      documentID: documentID ?? this.documentID,
+      correo: correo ?? this.correo,
+      imagenPerfil: imagenPerfil ?? this.imagenPerfil,
+      nick: nick ?? this.nick,
+      amigosId: amigosId ?? this.amigosId,
+      peliculasCriticadas: peliculasCriticadas ?? this.peliculasCriticadas,
+      peliculasFavoritas: peliculasFavoritas ?? this.peliculasFavoritas,
+      peliculasVistas: peliculasVistas ?? this.peliculasVistas,
+      fechaRegistro: fechaRegistro ?? this.fechaRegistro,
+      puntuaciones: puntuaciones ?? this.puntuaciones, 
+    );
+ }
 }

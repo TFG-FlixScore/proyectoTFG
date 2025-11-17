@@ -1,7 +1,10 @@
 
+import 'package:flixscore/componentes/home/card_pelicula.dart';
 import 'package:flixscore/controllers/login_provider.dart';
-import 'package:flixscore/modelos/pelicula_model.dart';
-import 'package:flixscore/servicios/tmdb_service.dart';
+import 'package:flixscore/modelos/critica_modelo.dart';
+import 'package:flixscore/modelos/pelicula_modelo.dart';
+import 'package:flixscore/modelos/usuario_modelo.dart';
+import 'package:flixscore/service/api_service.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -15,10 +18,10 @@ class PopularLayout extends StatefulWidget {
 class _PopularLayoutState extends State<PopularLayout> {
   // Instanciamos PeliculasService
   
-  final PeliculaService _service = PeliculaService();
+  final ApiService _service = ApiService();
 
   // Variables de uso local
-  List<Pelicula> _peliculas = [];
+  List<PeliculaCard> _peliculas = [];
   bool _cargando = true;
   String? _error;
 
@@ -38,11 +41,17 @@ class _PopularLayoutState extends State<PopularLayout> {
       final usuario = loginProvider.usuarioLogueado;
       
       for (var amigo in usuario!.amigosId) {
-        
+        List<ModeloCritica> criticasAmigo = await _service.getCriticasByUserId(amigo);
+        for (var critica in criticasAmigo) {
+          ModeloPelicula pelicula = await _service.getMovieByID(critica.peliculaID.toString());
+          ModeloUsuario usuarioCritica = await _service.getUsuarioByID(critica.usuarioUID);
+
+          PeliculaCard tarjetaPelicula = PeliculaCard(pelicula: pelicula, critica: critica, usuario: usuarioCritica); 
+          _peliculas.add(tarjetaPelicula);
+          }
       }
 
       setState(() {
-        //_peliculas = peliculas;
         _cargando = false;
       });
     } catch (e) {
@@ -69,7 +78,7 @@ class _PopularLayoutState extends State<PopularLayout> {
             const Icon(Icons.error_outline, color: Colors.red, size: 64),
             const SizedBox(height: 16),
             const Text(
-              'Error al cargar películas populares',
+              'Error al cargar películas de tus amigos',
               style: TextStyle(color: Colors.white, fontSize: 16),
             ),
             const SizedBox(height: 8),
@@ -91,7 +100,7 @@ class _PopularLayoutState extends State<PopularLayout> {
     if (_peliculas.isEmpty) {
       return const Center(
         child: Text(
-          "No hay películas populares disponibles",
+          "No hay peliculas de vistas por tus amigos, o no tienes amigos. Vete al bar a buscarlos",
           style: TextStyle(color: Colors.white54, fontSize: 16),
         ),
       );
@@ -118,7 +127,7 @@ class _PopularLayoutState extends State<PopularLayout> {
         final pelicula = _peliculas[index];
         return Padding(
           padding: const EdgeInsets.only(bottom: 16),
-          //child: PeliculaCard(pelicula: pelicula),
+          child: pelicula,
         );
       },
     );

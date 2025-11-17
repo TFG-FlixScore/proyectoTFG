@@ -282,7 +282,7 @@ class LoginProvider extends ChangeNotifier {
           correo: userDoc.get("correo"),
           imagenPerfil: userDoc.get("imagen_perfil") ?? "",
           nick: userDoc.get("nick"),
-          amigosId: List<String>.from(userDoc.get("amigos_ids") ?? []),
+          amigosId: List<String>.from(userDoc.get("amigos_id") ?? []),
           peliculasCriticadas: List<int>.from(
             userDoc.get("peliculas_criticadas") ?? [],
           ),

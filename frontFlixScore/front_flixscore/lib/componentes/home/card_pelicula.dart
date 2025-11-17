@@ -1,12 +1,12 @@
 import 'package:flixscore/componentes/common/snack_bar.dart';
 import 'package:flixscore/componentes/home/components/resumen_pelicula.dart';
 import 'package:flixscore/modelos/critica_modelo.dart';
-import 'package:flixscore/modelos/pelicula_model.dart';
+import 'package:flixscore/modelos/pelicula_modelo.dart';
 import 'package:flixscore/modelos/usuario_modelo.dart';
 import 'package:flutter/material.dart';
 
 class PeliculaCard extends StatelessWidget {
-  final Pelicula pelicula;
+  final ModeloPelicula pelicula;
   final ModeloCritica? critica;
   final ModeloUsuario? usuario;
 
@@ -41,7 +41,7 @@ class PeliculaCard extends StatelessWidget {
   Widget _tarjetaLayout() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
-      mainAxisSize: MainAxisSize.min,
+      mainAxisAlignment: MainAxisAlignment.start,
       children: [
         // Imagen y puntuación
         Row(
@@ -54,7 +54,7 @@ class PeliculaCard extends StatelessWidget {
                 color: Colors.grey,
               ),
               child: Image.network(
-                pelicula.rutaPoster,
+                pelicula.rutaPoster ?? '',
                 fit: BoxFit.cover),
               ),
             const SizedBox(width: 16),
@@ -66,38 +66,38 @@ class PeliculaCard extends StatelessWidget {
           ],
         ),
         const SizedBox(height: 12),
-        Container(
-          width: double.infinity,
-          padding: const EdgeInsets.all(12),
-          decoration: BoxDecoration(
-            color: const Color(0xFF374151),
-            borderRadius: BorderRadius.circular(8),
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                usuario?.nick ?? "",
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontSize: 12,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-              const SizedBox(height: 4),
-              Text(
-                critica?.comentario ?? "",
-                style: TextStyle(
-                  color: Colors.grey[300],
-                  fontSize: 11,
-                  fontStyle: FontStyle.italic,
-                ),
-                maxLines: 3,
-                overflow: TextOverflow.ellipsis,
-              ),
-            ],
-          ),
-        ),
+        // Row(
+        //   children: [
+        //     Icon(
+        //       Icons.comment,
+        //       color: const Color.fromARGB(255, 252, 252, 252),
+        //       size: 16,
+        //     ),
+        //     SizedBox(width: 6),
+        //     Flexible(
+        //       child: Text(
+        //         "1 crítica",
+        //         style: TextStyle(color: Colors.grey[400], fontSize: 14),
+        //       ),
+        //     ),
+        //   ],
+        // ),
+        // Row(
+        //   children: [
+        //     Icon(
+        //       Icons.calendar_month,
+        //       color: const Color.fromARGB(255, 102, 102, 102),
+        //       size: 16,
+        //     ),
+        //     SizedBox(width: 6),
+        //     Flexible(
+        //       child: Text(
+        //         "25/10/2024",
+        //         style: TextStyle(color: Colors.grey[400], fontSize: 14),
+        //       ),
+        //     ),
+        //   ],
+        // ),
       ],
     );
   }

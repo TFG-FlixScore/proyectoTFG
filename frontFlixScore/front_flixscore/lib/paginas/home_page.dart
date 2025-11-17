@@ -3,8 +3,10 @@ import 'package:flixscore/componentes/common/tab_button.dart';
 import 'package:flixscore/componentes/home/bucar_layout.dart';
 import 'package:flixscore/componentes/home/popular_layout.dart';
 import 'package:flixscore/componentes/home/ultimas_layout.dart';
+import 'package:flixscore/controllers/login_provider.dart';
 import 'package:flixscore/paginas/perfil_usuario_page.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -15,11 +17,15 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-
+  
   int tabSeleccionada = 0;
+
+  
 
   @override
   Widget build(BuildContext context) {
+    final provider = Provider.of<LoginProvider>(context, listen: false);
+
     return Scaffold(
       appBar: AppBar(
         automaticallyImplyLeading: false,
@@ -66,46 +72,52 @@ class _HomePageState extends State<HomePage> {
             },
             child: Padding(
               padding: const EdgeInsets.only(right: 16.0),
-              child: CircleAvatar(
-                radius: 25,
-                backgroundColor: const Color(0xFF0A0E1A),
-                child: Container(
-                  width: 50,
-                  height: 50,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    border: Border.all(
-                      color: const Color.fromARGB(255, 40, 241, 231),
-                      width: 2,
-                    ),
-                  ),
-                  // Imagen de Asset Local (Solo para tener algo dentro durante el desarrollo)
-                  child: ClipOval(
-                    child: Image.asset(
-                      '/images/liquen.webp',
-                      fit: BoxFit.cover,
-                    ),
-                  ),
-                  
-                  // Código para cargar la imagen de firebase en producción
-                  /*
-                  child: ClipOval(
-                    child: FadeInImage(
-                      placeholder: const AssetImage('/images/f.webp'),
-                      image: NetworkImage(
-                        'URL_DE_LA_IMAGEN_DE_CLOUD_STORAGE', 
+              child: Row(
+                children: [
+                  Text(provider.usuarioLogueado?.nick ?? 'Sin nombre', style: const TextStyle(color: Colors.white, fontSize: 16)),
+                  const SizedBox(width: 10),
+                  CircleAvatar(
+                    radius: 25,
+                    backgroundColor: const Color(0xFF0A0E1A),
+                    child: Container(
+                      width: 50,
+                      height: 50,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        border: Border.all(
+                          color: const Color.fromARGB(255, 40, 241, 231),
+                          width: 2,
+                        ),
                       ),
-                      fit: BoxFit.cover,
-                      imageErrorBuilder: (context, error, stackTrace) {
-                        return const Icon(
-                          Icons.person,
-                          color: Colors.white,
-                        );
-                      },
+                      // Imagen de Asset Local (Solo para tener algo dentro durante el desarrollo)
+                      child: ClipOval(
+                        child: Image.network(
+                          provider.usuarioLogueado?.imagenPerfil ?? "",
+                          fit: BoxFit.cover,
+                        ),
+                      ),
+                      
+                      // Código para cargar la imagen de firebase en producción
+                      /*
+                      child: ClipOval(
+                        child: FadeInImage(
+                          placeholder: const AssetImage('/images/f.webp'),
+                          image: NetworkImage(
+                            'URL_DE_LA_IMAGEN_DE_CLOUD_STORAGE', 
+                          ),
+                          fit: BoxFit.cover,
+                          imageErrorBuilder: (context, error, stackTrace) {
+                            return const Icon(
+                              Icons.person,
+                              color: Colors.white,
+                            );
+                          },
+                        ),
+                      ),
+                      */
                     ),
                   ),
-                  */
-                ),
+                ],
               ),
             ),
           ),
@@ -188,7 +200,7 @@ class _HomePageState extends State<HomePage> {
                Expanded(
                   child: switch(tabSeleccionada) {
                     0 => UltimasLayout(),
-                    1 => PopularLayout(),
+                    1 => PopularLayout(),   
                     2 => BuscarLayout(),
                     _ => UltimasLayout(),
                   },

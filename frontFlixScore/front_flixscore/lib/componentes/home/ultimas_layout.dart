@@ -1,6 +1,5 @@
 
 import 'package:flixscore/componentes/home/card_pelicula.dart';
-import 'package:flixscore/modelos/pelicula_model.dart';
 import 'package:flixscore/service/api_service.dart';
 import 'package:flutter/material.dart';
 
@@ -32,27 +31,15 @@ class _UltimasLayoutState extends State<UltimasLayout> {
         _cargando = true;
         _error = null;
       });
-
-      final criticas = await _apiService.getCriticasRecientes(20);
+      final criticas = await _apiService.getCriticasRecientes(10);
+      
 
       for (var critica in criticas) {
-
         var usuario = await _apiService.getUsuarioByID(critica.usuarioUID);
-        var peliculaTmdb = await _apiService.getMovieByID(critica.peliculaID.toString());
+        var pelicula = await _apiService.getMovieByID(critica.peliculaID.toString());
 
-        Pelicula pelicula = Pelicula(
-          id: peliculaTmdb.id,
-          titulo: peliculaTmdb.titulo,
-          resumen: peliculaTmdb.resumen,
-          fechaEstreno: peliculaTmdb.fechaEstreno,
-          rutaPoster: peliculaTmdb.rutaPoster!,
-        );
-
-        _peliculas.add(PeliculaCard(critica: critica, pelicula: pelicula, usuario: usuario));
+        _peliculas.add(PeliculaCard(pelicula: pelicula, critica: critica, usuario: usuario));
       }      
-
-
-
       setState(() {
         _peliculas = _peliculas;
         _cargando = false;
@@ -79,7 +66,7 @@ class _UltimasLayoutState extends State<UltimasLayout> {
             const Icon(Icons.error_outline, color: Colors.red, size: 64),
             const SizedBox(height: 16),
             const Text(
-              'Error al cargar películas populares',
+              'Error al cargar las ultimas peliculas criticadas',
               style: TextStyle(color: Colors.white, fontSize: 16),
             ),
             const SizedBox(height: 8),
@@ -130,7 +117,7 @@ class _UltimasLayoutState extends State<UltimasLayout> {
         final pelicula = _peliculas[index];
         return Padding(
           padding: const EdgeInsets.only(bottom: 16),
-          child: pelicula,
+          child: pelicula 
         );
       },
     );

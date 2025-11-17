@@ -1,6 +1,6 @@
-import 'package:flixscore/componentes/home/card_pelicula.dart'; // ✅ Agregar import
-import 'package:flixscore/modelos/pelicula_model.dart';
-import 'package:flixscore/servicios/tmdb_service.dart';
+import 'package:flixscore/componentes/home/card_pelicula.dart';
+import 'package:flixscore/modelos/pelicula_modelo.dart';
+import 'package:flixscore/service/api_service.dart';
 import 'package:flutter/material.dart';
 
 class BuscarLayout extends StatefulWidget {
@@ -12,11 +12,11 @@ class BuscarLayout extends StatefulWidget {
 
 class _BuscarLayoutState extends State<BuscarLayout> {
   // Instanciamos PeliculasService y el TextEditingController
-  final PeliculaService _service = PeliculaService();
+  final ApiService _service = ApiService();
   final TextEditingController _buscarController = TextEditingController();
 
   // Variables de uso local
-  List<Pelicula> _peliculas = [];
+  List<ModeloPelicula> _peliculas = [];
   bool _cargando = false;
   String? _error;
   bool _hasBuscado = false;
@@ -38,7 +38,7 @@ class _BuscarLayoutState extends State<BuscarLayout> {
         _hasBuscado = true;
       });
       
-      final peliculas = await _service.buscarPeliculas(query);
+      final peliculas = await _service.getMoviesByName(query);
       
       setState(() {
         _peliculas = peliculas;

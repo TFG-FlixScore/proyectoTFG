@@ -1,6 +1,5 @@
 import 'package:flixscore/componentes/common/snack_bar.dart';
 import 'package:flixscore/componentes/common/tab_button.dart';
-import 'package:flixscore/paginas/home_page.dart';
 import 'package:flixscore/controllers/login_provider.dart';
 import 'package:flixscore/controllers/register_provider.dart';
 import 'package:flutter/foundation.dart';

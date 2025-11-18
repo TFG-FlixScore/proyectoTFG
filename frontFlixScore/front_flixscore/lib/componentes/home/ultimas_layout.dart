@@ -33,7 +33,6 @@ class _UltimasLayoutState extends State<UltimasLayout> {
       });
       final criticas = await _apiService.getCriticasRecientes(10);
       
-
       for (var critica in criticas) {
         var usuario = await _apiService.getUsuarioByID(critica.usuarioUID);
         var pelicula = await _apiService.getMovieByID(critica.peliculaID.toString());

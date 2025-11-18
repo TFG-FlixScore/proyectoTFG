@@ -49,6 +49,7 @@ class _PopularLayoutState extends State<PopularLayout> {
           PeliculaCard tarjetaPelicula = PeliculaCard(pelicula: pelicula, critica: critica, usuario: usuarioCritica); 
           _peliculas.add(tarjetaPelicula);
           }
+
       }
 
       setState(() {
@@ -146,7 +147,7 @@ class _PopularLayoutState extends State<PopularLayout> {
         children: _peliculas.map((pelicula) {
           return SizedBox(
             width: anchoCard,
-            //child: PeliculaCard(pelicula: pelicula),
+            child: pelicula,
           );
         }).toList(),
       ),

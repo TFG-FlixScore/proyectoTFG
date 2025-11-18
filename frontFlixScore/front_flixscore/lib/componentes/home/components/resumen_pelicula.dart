@@ -19,7 +19,7 @@ class ResumenPelicula extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          titulo,
+          titulo.length > 20 ? "${titulo.substring(0, 20)}..." : titulo,
           style: TextStyle(
             color: Colors.white,
             fontSize: 20,
@@ -28,7 +28,6 @@ class ResumenPelicula extends StatelessWidget {
         ),
         
         Text(fechaEstreno, style: TextStyle(color: Colors.grey[400], fontSize: 16)),
-        
         SizedBox(height: 12),
         Text(resumen.length > 80 ? "${resumen.substring(0, 80)}..." : resumen, style: TextStyle(color: Colors.grey[400], fontSize: 16))
       ],

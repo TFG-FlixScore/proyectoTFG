@@ -96,25 +96,6 @@ class _HomePageState extends State<HomePage> {
                           fit: BoxFit.cover,
                         ),
                       ),
-                      
-                      // Código para cargar la imagen de firebase en producción
-                      /*
-                      child: ClipOval(
-                        child: FadeInImage(
-                          placeholder: const AssetImage('/images/f.webp'),
-                          image: NetworkImage(
-                            'URL_DE_LA_IMAGEN_DE_CLOUD_STORAGE', 
-                          ),
-                          fit: BoxFit.cover,
-                          imageErrorBuilder: (context, error, stackTrace) {
-                            return const Icon(
-                              Icons.person,
-                              color: Colors.white,
-                            );
-                          },
-                        ),
-                      ),
-                      */
                     ),
                   ),
                 ],

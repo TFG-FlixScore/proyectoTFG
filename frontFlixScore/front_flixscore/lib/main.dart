@@ -1,3 +1,4 @@
+import 'package:flixscore/controllers/criticas_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:provider/provider.dart';
@@ -34,6 +35,17 @@ class MyApp extends StatelessWidget {
       providers: [
         ChangeNotifierProvider(create: (_) => LoginProvider()),
         ChangeNotifierProvider(create: (_) => RegisterProvider()),
+        // Con proxy provider nos aseguramos que CriticasProvider
+        // siempre tenga el usuario logueado actualizado
+        // En consecuencia, las críticas se actualizaran y no se tendra que hacer tantas llamadas
+        // desde las paginas que usen CriticasProvider
+        ChangeNotifierProxyProvider<LoginProvider, CriticasProvider>(
+          create: (_) => CriticasProvider(),
+          update: (_, loginProvider, criticasProvider) {
+              criticasProvider!.actualizarUsuarioLogueado(loginProvider.usuarioLogueado);
+              return criticasProvider;
+          },
+        ),
       ],
       child: MaterialApp(
         title: 'FlixScore',

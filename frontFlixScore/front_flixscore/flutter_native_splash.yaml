@@ -74,19 +74,19 @@ flutter_native_splash:
   #image_dark_web:      assets/splash-invert-web.gif  
 
   # image alignment (default center if not specified, or speccified something else):
-  #android_gravity: center       # bottom, center, center_horizontal, center_vertical, 
+  # android_gravity: center       # bottom, center, center_horizontal, center_vertical, 
   # clip_horizontal, clip_vertical, end, fill, fill_horizontal, fill_vertical, left, right, start, top. could also be a combination like `android_gravity: fill|clip_vertical`
   # This will fill the width while maintaining the image's vertical aspect ratio.
   # visit https://developer.android.com/reference/android/view/Gravity
-  #ios_content_mode: center      # scaleToFill, scaleAspectFit, scaleAspectFill, 
+  # ios_content_mode: center      # scaleToFill, scaleAspectFit, scaleAspectFill, 
   # center, top, bottom, left, right, topLeft, topRight, bottomLeft, or bottomRight.
   # visit https://developer.apple.com/documentation/uikit/uiview/contentmode
-  #web_image_mode: center        # center, contain, stretch, cover
+  # web_image_mode: center        # center, contain, stretch, cover
 
   # general branding for all platform (except android 12+):
   # allows you to specify an image used as branding in the splash screen. should be png.
-  #branding:      assets/dart.png
-  #branding_dark: assets/dart_dark.png
+  # branding:      assets/dart.png
+  # branding_dark: assets/dart_dark.png
   # platform-specific branding. will override general branding if active:
   branding_android:      assets/brand-android.png
   #branding_dark_android: assets/dart_dark-android.png

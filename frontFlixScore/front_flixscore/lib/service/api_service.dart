@@ -162,7 +162,7 @@ class ApiService {
     final uri = Uri.parse('$_baseUrl/api/v1/criticas/ranking').replace(
       queryParameters: {'cantidad': cantidad.toString()},
     );
-
+    
     final response = await http.get(uri);
 
     if (response.statusCode == 200) {

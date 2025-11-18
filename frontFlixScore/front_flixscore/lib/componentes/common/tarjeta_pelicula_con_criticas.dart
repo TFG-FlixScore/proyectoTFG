@@ -1,0 +1,163 @@
+import 'package:flixscore/modelos/critica_modelo.dart';
+import 'package:flutter/material.dart';
+import 'package:flixscore/modelos/pelicula_modelo.dart';
+import 'package:provider/provider.dart';
+import 'package:flixscore/controllers/criticas_provider.dart';
+import 'package:flixscore/componentes/home/components/resumen_pelicula.dart';
+
+class TarjetaPeliculaConCriticas extends StatelessWidget {
+  final ModeloPelicula pelicula;
+
+  const TarjetaPeliculaConCriticas({super.key, required this.pelicula});
+
+  @override
+  Widget build(BuildContext context) {
+    final criticasProvider = Provider.of<CriticasProvider>(context);
+    final criticasUsuarioList = criticasProvider.criticasUsuario
+        .where((c) => c.peliculaID == pelicula.id).toList();
+    final criticaUsuario = criticasUsuarioList.isNotEmpty ? criticasUsuarioList.first : null;    
+
+    final criticasAmigos = criticasProvider.criticasAmigos
+        .where((c) => c.peliculaID == pelicula.id)
+        .toList();
+
+    return ConstrainedBox(
+      constraints: const BoxConstraints(maxWidth: 800),
+      child: IntrinsicWidth(
+        child: IntrinsicHeight(
+          child: Card(
+            
+            color: const Color(0xFF1F2937),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(16),
+            ),
+            elevation: 4,
+            child: Padding(
+              padding: const EdgeInsets.all(16),
+              child: _tarjetaLayout(criticasAmigos, criticaUsuario),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _tarjetaLayout(List<ModeloCritica> criticasAmigos, ModeloCritica? criticaUsuario) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisAlignment: MainAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            Container(
+              width: 140,
+              height: 200,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(12),
+                color: Colors.grey,
+              ),
+              child: Image.network(
+                pelicula.rutaPoster ?? '',
+                fit: BoxFit.cover,
+              ),
+            ),
+            const SizedBox(width: 16),
+            Expanded(
+              flex: 2,
+              child: ResumenPelicula(
+                titulo: pelicula.titulo,
+                resumen: pelicula.resumen,
+                fechaEstreno: pelicula.fechaEstreno,
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 12),
+        Row(
+          children: [
+            Text("Media de tus amigos:"),
+            const SizedBox(width: 4),
+            const Icon(Icons.star, color: Colors.orange, size: 14),
+            const SizedBox(width: 4),
+            Text(
+              "${_calcularMedia(criticasAmigos)}/10",
+              style: const TextStyle(
+                color: Colors.orange,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            if(criticaUsuario == null)
+              Expanded(
+                child: Padding(
+                  padding: EdgeInsets.only(left: 16.0),
+                  child: ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      foregroundColor: Colors.white,
+                      backgroundColor: Colors.blueAccent,
+                    ),
+                    onPressed: () {},
+                    child: Text("Escribir critica")),
+                ),
+              ),
+          ],
+        ),
+        const SizedBox(height: 12),
+        Text(
+          "Críticas de tus amigos:${criticasAmigos.length}",
+          style: TextStyle(
+            color: Colors.cyan,
+            fontSize: 16,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        
+        const SizedBox(height: 8),
+        ...criticasAmigos.map((critica) {
+          return Container(
+            width: double.infinity,
+            margin: const EdgeInsets.only(bottom: 12),
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: const Color(0xFF374151),
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  "ID usuario: ${critica.usuarioUID}",
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 13,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  critica.comentario ?? "",
+                  style: TextStyle(
+                    color: Colors.grey[300],
+                    fontSize: 12,
+                    fontStyle: FontStyle.italic,
+                  ),
+                  maxLines: 4,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ],
+            ),
+          );
+        }),
+      ],
+    );
+  }
+
+  double _calcularMedia(List<ModeloCritica> criticas) {
+    if (criticas.isEmpty) return 0;
+    final total = criticas.fold<double>(
+      0,
+      (sum, critica) => sum + (critica.puntuacion),
+    );
+    return double.parse((total / criticas.length).toStringAsFixed(1));
+  }
+
+}

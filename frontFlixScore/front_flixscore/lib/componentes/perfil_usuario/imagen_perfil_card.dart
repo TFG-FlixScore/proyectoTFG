@@ -8,14 +8,14 @@ import 'package:flixscore/componentes/common/snack_bar.dart';
 import 'package:provider/provider.dart';
 import 'package:flixscore/controllers/login_provider.dart';
 
-class FotoPerfilUsuarioCard extends StatefulWidget {
+class ImagenPerfilUsuarioCard extends StatefulWidget {
   final String nickUsuario;
   final String emailUsuario;
   final String? urlImagenInicial;
   final String usuarioId;
   final Function(String nuevaUrl) onImagenActualizada;
 
-  const FotoPerfilUsuarioCard({
+  const ImagenPerfilUsuarioCard({
     Key? key,
     required this.nickUsuario,
     required this.emailUsuario,
@@ -25,11 +25,11 @@ class FotoPerfilUsuarioCard extends StatefulWidget {
   }) : super(key: key);
 
   @override
-  State<FotoPerfilUsuarioCard> createState() => _FotoPerfilUsuarioCardState();
+  State<ImagenPerfilUsuarioCard> createState() => _ImagenPerfilUsuarioCardState();
 }
 
-class _FotoPerfilUsuarioCardState extends State<FotoPerfilUsuarioCard> {
-  String? _urlImagen;
+class _ImagenPerfilUsuarioCardState extends State<ImagenPerfilUsuarioCard> {
+  String? _urlImagen; 
   final ImagePicker _picker = ImagePicker();
 
   @override
@@ -37,10 +37,16 @@ class _FotoPerfilUsuarioCardState extends State<FotoPerfilUsuarioCard> {
     super.initState();
     _urlImagen = widget.urlImagenInicial;
   }
-
+  
+  // ======================================================================
+  // Lógica de cambio de imagen
+  // ======================================================================
   Future<void> _cambiarImagen() async {
     final fileData = await _seleccionImagen();
     if (fileData == null) return;
+
+    // Actualiza la URL antigua del estado antes de subir la nueva
+    final urlAntigua = _urlImagen; 
 
     OverlayEntry? subiendoImagen;
     try {
@@ -64,21 +70,30 @@ class _FotoPerfilUsuarioCardState extends State<FotoPerfilUsuarioCard> {
       );
       Overlay.of(context).insert(subiendoImagen);
 
-      final nuevaUrl = await _subirImagen(fileData);
+      final nuevaUrl = await _subirImagen(fileData, urlAntigua);
 
-      // Limpieza de caché
-      await CachedNetworkImage.evictFromCache(_urlImagen ?? '');
+      if (urlAntigua != null) {
+        await CachedNetworkImage.evictFromCache(urlAntigua);
+      }
       await CachedNetworkImage.evictFromCache(nuevaUrl);
 
-      // Actualiza provider y notifica
+      setState(() {
+        _urlImagen = nuevaUrl;
+      });
       widget.onImagenActualizada(nuevaUrl);
+
+      if (mounted) mostrarSnackBarExito(context, "Imagen de perfil actualizada.");
+
     } catch (e) {
       if (mounted) mostrarSnackBarError(context, _obtenerMensajeError(e));
     } finally {
       subiendoImagen?.remove();
     }
   }
-
+  
+  // ======================================================================
+  // Selección de Imagen
+  // ======================================================================
   Future<Map<String, dynamic>?> _seleccionImagen() async {
     try {
       final XFile? pickedFile = await _picker.pickImage(
@@ -111,7 +126,7 @@ class _FotoPerfilUsuarioCardState extends State<FotoPerfilUsuarioCard> {
 
       return {
         'bytes': bytes,
-        'fileName': 'avatar_${widget.usuarioId}.$extension',
+        'fileNameBase': 'avatar_${widget.usuarioId}', 
         'extension': extension,
       };
     } catch (e) {
@@ -120,35 +135,88 @@ class _FotoPerfilUsuarioCardState extends State<FotoPerfilUsuarioCard> {
     }
   }
 
-  Future<String> _subirImagen(Map<String, dynamic> fileData) async {
+  // ======================================================================
+  // ⬆Subida de Imagen a Storage y Eliminación de Anterior
+  // ======================================================================
+
+  Future<String> _subirImagen(
+    Map<String, dynamic> fileData,
+    String? urlAntigua,
+  ) async {
     try {
       final storage = FirebaseStorage.instanceFor(
         app: Firebase.app(),
         bucket: Firebase.app().options.storageBucket,
       );
-      final ref = storage.ref('profile_images/${widget.usuarioId}/${fileData['fileName']}');
+      
+      final fileNameBase = fileData['fileNameBase'] as String;
+      final extension = fileData['extension'] as String;
+      
+      final rutaCompleta = 'profile_images/${widget.usuarioId}/$fileNameBase.$extension';
+      final ref = storage.ref(rutaCompleta); 
+      
+      // Ejecutamos la subida. Si la ruta ya existe, se sobreescribe
       final uploadTask = ref.putData(
         fileData['bytes'] as Uint8List,
         SettableMetadata(
-          contentType: 'image/${fileData['extension']}',
+          contentType: 'image/$extension', 
           cacheControl: 'public, max-age=3600',
         ),
       );
 
       final snapshot = await uploadTask;
-      return await snapshot.ref.getDownloadURL();
+      final nuevaUrl = await snapshot.ref.getDownloadURL();
+      
+      // Eliminamos la imagen anterior si la extensión ha cambiado
+      if (urlAntigua != null && urlAntigua.isNotEmpty) {
+        await _eliminarImagenAnterior(urlAntigua, nuevaUrl);
+      }
+      
+      return nuevaUrl;
+      
     } catch (e) {
       throw _obtenerMensajeError(e);
     }
   }
-
+  
+  // ======================================================================
+  // Lógica de Eliminación
+  // ======================================================================
+  Future<void> _eliminarImagenAnterior(String urlAntigua, String nuevaUrl) async {
+    if (urlAntigua == nuevaUrl) return; 
+    try {
+      final storage = FirebaseStorage.instanceFor(
+        app: Firebase.app(),
+        bucket: Firebase.app().options.storageBucket,
+      );
+      final refAntigua = storage.refFromURL(urlAntigua);
+      if (urlAntigua.contains('dummyimage')) { 
+        return; 
+      }
+      final refNueva = storage.refFromURL(nuevaUrl);
+      if (refAntigua.fullPath != refNueva.fullPath) {
+          await refAntigua.delete();
+          print('Imagen anterior eliminada: ${refAntigua.fullPath}');
+      }
+    } on FirebaseException catch (e) {
+      if (e.code == 'object-not-found') {
+         print('El archivo anterior no existe, no se pudo eliminar.');
+      } else {
+        print('Error al intentar eliminar la imagen anterior: ${e.message}');
+      }
+    }
+  }
+  
+  // ======================================================================
+  // Manejo de Errores
+  // ======================================================================
   String _obtenerMensajeError(dynamic error) {
     if (error is FirebaseException) {
       switch (error.code) {
         case 'unauthorized':
-          return 'No tienes permisos. Revisa Firebase Storage.';
+          return 'No tienes permisos para subir la imagen.';
         case 'canceled':
-          return 'Subida cancelada.';
+          return 'Subida cancelada por el usuario o timeout.';
         case 'unknown':
           return 'Error de red o CORS.';
         default:
@@ -161,6 +229,9 @@ class _FotoPerfilUsuarioCardState extends State<FotoPerfilUsuarioCard> {
     return 'Error inesperado.';
   }
 
+  // ======================================================================
+  // UI
+  // ======================================================================
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -180,14 +251,14 @@ class _FotoPerfilUsuarioCardState extends State<FotoPerfilUsuarioCard> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text("Foto de Perfil",
+          const Text("Imagen de Perfil",
               style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold)),
           const SizedBox(height: 6),
           const Text("Cambia aquí como te ven tus amigos.",
               style: TextStyle(color: Color(0xFFAAAAAA), fontSize: 14)),
-          const SizedBox(height: 19),
+          const SizedBox(height: 10),
           const Divider(height: 20, color: Color(0xFF333333)),
-          const SizedBox(height: 19),
+          const SizedBox(height: 10),
           Row(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
@@ -210,6 +281,7 @@ class _FotoPerfilUsuarioCardState extends State<FotoPerfilUsuarioCard> {
                           child: ClipOval(
                             child: Consumer<LoginProvider>(
                               builder: (_, provider, __) {
+                                // Usa la URL del provider si está disponible
                                 final urlActual =
                                     provider.usuarioLogueado?.imagenPerfil ??
                                         widget.urlImagenInicial ??
@@ -279,7 +351,6 @@ class _FotoPerfilUsuarioCardState extends State<FotoPerfilUsuarioCard> {
               ),
             ],
           ),
-          const SizedBox(height: 8),
         ],
       ),
     );

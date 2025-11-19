@@ -24,7 +24,7 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
-    final provider = Provider.of<LoginProvider>(context, listen: false);
+    final provider = Provider.of<LoginProvider>(context, listen: true);
 
     return Scaffold(
       appBar: AppBar(
@@ -89,32 +89,12 @@ class _HomePageState extends State<HomePage> {
                           width: 2,
                         ),
                       ),
-                      // Imagen de Asset Local (Solo para tener algo dentro durante el desarrollo)
                       child: ClipOval(
                         child: Image.network(
                           provider.usuarioLogueado?.imagenPerfil ?? "",
                           fit: BoxFit.cover,
                         ),
                       ),
-                      
-                      // Código para cargar la imagen de firebase en producción
-                      /*
-                      child: ClipOval(
-                        child: FadeInImage(
-                          placeholder: const AssetImage('/images/f.webp'),
-                          image: NetworkImage(
-                            'URL_DE_LA_IMAGEN_DE_CLOUD_STORAGE', 
-                          ),
-                          fit: BoxFit.cover,
-                          imageErrorBuilder: (context, error, stackTrace) {
-                            return const Icon(
-                              Icons.person,
-                              color: Colors.white,
-                            );
-                          },
-                        ),
-                      ),
-                      */
                     ),
                   ),
                 ],

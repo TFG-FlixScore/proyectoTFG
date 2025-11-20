@@ -1,5 +1,6 @@
 import 'package:flixscore/controllers/login_provider.dart';
 import 'package:flixscore/modelos/amigo_modelo.dart';
+import 'package:flixscore/paginas/home_page.dart';
 import 'package:flixscore/paginas/login_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flixscore/service/api_service.dart';
@@ -12,6 +13,8 @@ import 'package:flixscore/componentes/perfil_usuario/informacion_basica_card.dar
 import 'package:flixscore/componentes/perfil_usuario/buscar_usuario_card.dart';
 import 'package:flixscore/componentes/perfil_usuario/mis_criticas_card.dart';
 import 'package:provider/provider.dart';
+
+enum MenuOption { navegarAHome, administracion, cerrarSesion}
 
 class PerfilUsuario extends StatefulWidget {
   const PerfilUsuario({super.key});
@@ -124,9 +127,38 @@ class _PerfilUsuarioState extends State<PerfilUsuario> {
 
   @override
   Widget build(BuildContext context) {
+
+    // Lógica para manejar la selección del menú
+    void onMenuItemSelected(MenuOption item) {
+      switch (item) {
+        // Vamos al home
+        case MenuOption.navegarAHome:
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(
+              builder: (context) => const HomePage(),
+            ),
+          );
+          break;
+
+        // Vamos a administración
+        case MenuOption.administracion:
+          // Aquí debemos añadir el navegador a administración
+          break;
+
+        // Cerramos sesión
+        case MenuOption.cerrarSesion:
+          Provider.of<LoginProvider>(context, listen: false).logout();
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (_) => const LoginScreen()),
+          );
+          break;
+      }
+    }
+
     return Scaffold(
       appBar: AppBar(
-        automaticallyImplyLeading: true,
         toolbarHeight: 80,
         backgroundColor: const Color(0xFF111827),
         title: const Text(
@@ -138,7 +170,41 @@ class _PerfilUsuarioState extends State<PerfilUsuario> {
             fontFamily: "Inter",
           ),
         ),
-        centerTitle: false,
+        automaticallyImplyLeading: false,
+        actions: [
+          // Menú Desplegable
+          PopupMenuButton<MenuOption>(
+            tooltip: 'Menú',                
+            onSelected: onMenuItemSelected,
+            icon: const Icon(Icons.more_vert, color: Colors.white),
+            itemBuilder: (BuildContext context) => <PopupMenuEntry<MenuOption>>[
+
+              // Navegar al Home
+              PopupMenuItem<MenuOption>(
+                value: MenuOption.navegarAHome,
+                child: Row(
+                  children: const [
+                    Icon(Icons.house_outlined, color: Colors.blue),
+                    SizedBox(width: 8),
+                    Text('Ir a principal'),
+                  ],
+                ),
+              ),
+
+              //Cerrar Sesión
+              PopupMenuItem<MenuOption>(
+                value: MenuOption.cerrarSesion,
+                child: Row(
+                  children: const [
+                    Icon(Icons.logout, color: Colors.red),
+                    SizedBox(width: 8),
+                    Text('Cerrar Sesión'),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ],
       ),
       backgroundColor: const Color(0xFF0A0E1A),
       body: FutureBuilder<Map<String, dynamic>>(
@@ -164,9 +230,6 @@ class _PerfilUsuarioState extends State<PerfilUsuario> {
 
             _nickActual ??= usuario.nick;
             
-            // Si la lista local está vacía, la inicializamos con la data del Future. 
-            // Esto solo pasa en la carga inicial. Las actualizaciones posteriores 
-            // vienen de _actualizarListaAmigosDespuesDeBusqueda.
             if (_amigosConComunes.isEmpty) {
                _amigosConComunes = amigosConComunes;
             }
@@ -174,7 +237,6 @@ class _PerfilUsuarioState extends State<PerfilUsuario> {
             return LayoutBuilder(
               builder: (context, constraints) {
                 final bool isLargeScreen = constraints.maxWidth > _kTabletBreakpoint;
-                // OBTENER ID DEL USUARIO DESDE EL MODELO CARGADO
                 final currentUserId = usuario.documentID!; 
 
                 return SingleChildScrollView(

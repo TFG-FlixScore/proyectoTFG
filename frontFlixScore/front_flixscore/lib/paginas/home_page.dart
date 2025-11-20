@@ -1,30 +1,22 @@
+import 'package:flixscore/componentes/home/components/popup_menu_home.dart';
 import 'package:flixscore/componentes/common/tab_button.dart';
-
 import 'package:flixscore/componentes/home/bucar_layout.dart';
 import 'package:flixscore/componentes/home/popular_layout.dart';
 import 'package:flixscore/componentes/home/ultimas_layout.dart';
-import 'package:flixscore/controllers/login_provider.dart';
-import 'package:flixscore/paginas/perfil_usuario_page.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
 
   @override
   State<HomePage> createState() => _HomePageState();
-
 }
 
 class _HomePageState extends State<HomePage> {
-  
   int tabSeleccionada = 0;
-
-  
 
   @override
   Widget build(BuildContext context) {
-    final provider = Provider.of<LoginProvider>(context, listen: true);
 
     return Scaffold(
       appBar: AppBar(
@@ -59,48 +51,9 @@ class _HomePageState extends State<HomePage> {
           ],
         ),
         centerTitle: false,
-        actions: [
-          GestureDetector(
-            // Navegamos a la página del perfil
-            onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => const PerfilUsuario(),
-                ),
-              );
-            },
-            child: Padding(
-              padding: const EdgeInsets.only(right: 16.0),
-              child: Row(
-                children: [
-                  Text(provider.usuarioLogueado?.nick ?? 'Sin nombre', style: const TextStyle(color: Colors.white, fontSize: 16)),
-                  const SizedBox(width: 10),
-                  CircleAvatar(
-                    radius: 25,
-                    backgroundColor: const Color(0xFF0A0E1A),
-                    child: Container(
-                      width: 50,
-                      height: 50,
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        border: Border.all(
-                          color: const Color.fromARGB(255, 40, 241, 231),
-                          width: 2,
-                        ),
-                      ),
-                      child: ClipOval(
-                        child: Image.network(
-                          provider.usuarioLogueado?.imagenPerfil ?? "",
-                          fit: BoxFit.cover,
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
+        actions: const [
+          AppBarPopupMenu(),
+          SizedBox(width: 16),
         ],
       ),
       backgroundColor: const Color(0xFF0A0E1A),
@@ -138,53 +91,53 @@ class _HomePageState extends State<HomePage> {
                       height: 45,
                       decoration: BoxDecoration(
                         color: const Color(0xFF1F2937),
-                        borderRadius: BorderRadius.circular(36)
+                        borderRadius: BorderRadius.circular(36),
                       ),
                       child: Row(
                         children: [
                           Expanded(
                             flex: 2,
                             child: TabButton(
-                              icono: Icons.access_time, 
-                              etiqueta: "Últimas", 
+                              icono: Icons.access_time,
+                              etiqueta: "Últimas",
                               seleccionado: tabSeleccionada == 0,
-                              onTap: () => setState(() => tabSeleccionada = 0)
+                              onTap: () => setState(() => tabSeleccionada = 0),
                             ),
                           ),
                           Expanded(
                             flex: 3,
                             child: TabButton(
-                              icono: Icons.trending_up, 
-                              etiqueta: "De tus amigos", 
+                              icono: Icons.trending_up,
+                              etiqueta: "De tus amigos",
                               seleccionado: tabSeleccionada == 1,
-                              onTap: () => setState(() => tabSeleccionada = 1)
+                              onTap: () => setState(() => tabSeleccionada = 1),
                             ),
                           ),
                           Expanded(
                             flex: 2,
                             child: TabButton(
-                              icono: Icons.search, 
-                              etiqueta: "Buscar", 
+                              icono: Icons.search,
+                              etiqueta: "Buscar",
                               seleccionado: tabSeleccionada == 2,
-                              onTap: () => setState(() => tabSeleccionada = 2)
+                              onTap: () => setState(() => tabSeleccionada = 2),
                             ),
                           ),
                         ],
-                      )
+                      ),
                     ),
                     const SizedBox(height: 8),
                   ],
                 ),
               ),
               // CONTENIDO SCROLLABLE
-               Expanded(
-                  child: switch(tabSeleccionada) {
-                    0 => UltimasLayout(),
-                    1 => PopularLayout(),   
-                    2 => BuscarLayout(),
-                    _ => UltimasLayout(),
-                  },
-                ),
+              Expanded(
+                child: switch (tabSeleccionada) {
+                  0 => UltimasLayout(),
+                  1 => PopularLayout(),
+                  2 => BuscarLayout(),
+                  _ => UltimasLayout(),
+                },
+              ),
             ],
           ),
         ),
@@ -192,6 +145,3 @@ class _HomePageState extends State<HomePage> {
     );
   }
 }
-
-
-                

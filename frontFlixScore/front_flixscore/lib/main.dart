@@ -25,6 +25,8 @@ void main() async {
   runApp(const MyApp());
 }
 
+final RouteObserver<ModalRoute<void>> routeObserver = RouteObserver<ModalRoute<void>>();
+
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
@@ -58,7 +60,7 @@ class MyApp extends StatelessWidget {
             ),
           ),
         ),
-        
+        navigatorObservers: [routeObserver],
         home: Consumer2<LoginProvider, RegisterProvider>(
           builder: (context, loginProvider, registerProvider, _) {
             if (loginProvider.status == AuthStatus.autenticado || 

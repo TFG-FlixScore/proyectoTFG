@@ -152,7 +152,8 @@ class _ListaAmigosCardState extends State<ListaAmigosCard> {
                           amigosEnComun: a.amigosEnComun,
                           imagenPerfil: a.imagenPerfil,
                           onQuitarAmigo: () => _confirmarYEliminarAmigo(a),
-                          onTapPerfil: () => Navigator.of(context).push(
+                          onTapPerfil: () => Navigator.pushReplacement(
+                            context,
                             MaterialPageRoute(
                               builder: (_) => PerfilAmigoPage(
                                 usuarioId: a.documentID!,

@@ -24,7 +24,7 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
-    final provider = Provider.of<LoginProvider>(context, listen: false);
+    final provider = Provider.of<LoginProvider>(context, listen: true);
 
     return Scaffold(
       appBar: AppBar(
@@ -89,7 +89,6 @@ class _HomePageState extends State<HomePage> {
                           width: 2,
                         ),
                       ),
-                      // Imagen de Asset Local (Solo para tener algo dentro durante el desarrollo)
                       child: ClipOval(
                         child: Image.network(
                           provider.usuarioLogueado?.imagenPerfil ?? "",

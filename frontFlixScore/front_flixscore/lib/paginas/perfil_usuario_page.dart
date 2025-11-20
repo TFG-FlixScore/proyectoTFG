@@ -7,7 +7,7 @@ import 'package:flixscore/modelos/usuario_modelo.dart';
 import 'package:flixscore/componentes/common/tab_button.dart';
 import 'package:flixscore/componentes/perfil_usuario/estadisticas_card.dart';
 import 'package:flixscore/componentes/perfil_usuario/lista_amigos_card.dart';
-import 'package:flixscore/componentes/perfil_usuario/foto_perfil_card.dart';
+import 'package:flixscore/componentes/perfil_usuario/imagen_perfil_card.dart';
 import 'package:flixscore/componentes/perfil_usuario/informacion_basica_card.dart';
 import 'package:flixscore/componentes/perfil_usuario/buscar_usuario_card.dart';
 import 'package:flixscore/componentes/perfil_usuario/mis_criticas_card.dart';
@@ -213,7 +213,7 @@ class _PerfilUsuarioState extends State<PerfilUsuario> {
       children: [
         _buildTabSelector(),
         if (tabSeleccionada == 0) ...[
-          FotoPerfilUsuarioCard(
+          ImagenPerfilUsuarioCard(
             nickUsuario: _nickActual ?? '',
             emailUsuario: usuario.correo,
             urlImagenInicial: usuario.imagenPerfil,
@@ -263,7 +263,7 @@ class _PerfilUsuarioState extends State<PerfilUsuario> {
               ? Column(
                   children: [
                     _buildTabSelector(),
-                    FotoPerfilUsuarioCard(
+                    ImagenPerfilUsuarioCard(
                       nickUsuario: _nickActual ?? '',
                       emailUsuario: usuario.correo,
                       urlImagenInicial: usuario.imagenPerfil,

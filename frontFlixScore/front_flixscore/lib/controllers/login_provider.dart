@@ -605,13 +605,6 @@ class LoginProvider extends ChangeNotifier {
           await user.delete(); 
       }
 
-      
-      /*Navigator.of(context).pushAndRemoveUntil(
-        MaterialPageRoute(
-          builder: (context) => const LoginScreen(),
-        ),
-        (Route<dynamic> route) => false,
-      );*/
       mostrarSnackBarExito(context, "Tu cuenta ha sido eliminada exitosamente.");
       
       return true; 
@@ -619,5 +612,13 @@ class LoginProvider extends ChangeNotifier {
       mostrarSnackBarError(context, "Error al eliminar la cuenta: ${e.toString().split(':').last.trim()}");
       return false;
     }
+  }
+
+  // Recarga las puntuaciones medias del usuario
+  Future<void> recargarPuntuaciones() async {
+    if (_usuarioLogueado == null) return;
+    final nuevas = await _obtenerPuntuacionesDesdeCriticas(_usuarioLogueado!.documentID!);
+    _usuarioLogueado = _usuarioLogueado!.copyWith(puntuaciones: nuevas);
+    notifyListeners();
   }
 }

@@ -22,7 +22,7 @@ class AmigoListItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Material(                       // necesario para que el splash se vea
+    return Material( 
       color: Colors.transparent,
       child: InkWell(
         onTap: onTapPerfil,                // <-- abre el perfil
@@ -82,6 +82,7 @@ class AmigoListItem extends StatelessWidget {
                   color: secondaryTextColor,
                   size: 24,
                 ),
+                tooltip: 'Eliminar amigo',
               ),
               const SizedBox(width: 8),
             ],

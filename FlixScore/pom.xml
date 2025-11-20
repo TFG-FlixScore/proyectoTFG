@@ -92,6 +92,12 @@
 			<artifactId>dotenv-java</artifactId>
 			<version>3.2.0</version>
 		</dependency>
+
+		<!-- Dependencia para la gestion de la seguridad -->
+		<dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-security</artifactId>
+        </dependency>
 	
 	</dependencies>
 	<build>

@@ -293,6 +293,7 @@ class _TarjetaPeliculaConCriticasState
                       peliculaID: widget.pelicula.id,
                       puntuacion: puntuacion,
                       comentario: comentarioController.text,
+                      fechaCreacion: DateTime.now().millisecondsSinceEpoch,
                     ),
                   );
                   } catch (e) {

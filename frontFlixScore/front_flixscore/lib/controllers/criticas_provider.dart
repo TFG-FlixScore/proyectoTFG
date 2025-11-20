@@ -116,6 +116,11 @@ class CriticasProvider extends ChangeNotifier{
 
   Future<void> crearCritica(ModeloCritica nuevaCritica) async {
   AppLogger.logMethod('crearCritica', message: 'nuevaCritica: $nuevaCritica');
+  AppLogger.logVar('nuevaCritica id Usuario', nuevaCritica.usuarioUID);
+  AppLogger.logVar('nuevaCritica id Pelicula', nuevaCritica.peliculaID);
+  AppLogger.logVar('nuevaCritica puntuacion', nuevaCritica.puntuacion);
+  AppLogger.logVar('nuevaCritica comentario', nuevaCritica.comentario);
+  AppLogger.logVar('nuevaCritica fecha', nuevaCritica.fechaCreacion.toString());
     try {
       final criticaCreada = await apiService.addCritica(nuevaCritica);
   AppLogger.logVar('criticaCreada', criticaCreada);

@@ -39,7 +39,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
  */
 
 @RestController
-@RequestMapping("/api/v1/criticas/")
+@RequestMapping("/api/v1/criticas")
 @Tag(name = "Críticas", description = "Gestión de críticas y puntuaciones de películas")
 public class CriticaController {
 
@@ -52,7 +52,7 @@ public class CriticaController {
                         @ApiResponse(responseCode = "200", description = "Operación exitosa. Devuelve la lista de críticas o la crítica individual.", content = @Content(schema = @Schema(implementation = ModeloCritica.class))),
                         @ApiResponse(responseCode = "500", description = "Error interno del servidor durante la comunicación con la base de datos.")
         })
-        @GetMapping
+        @GetMapping("/")
         public Flux<ModeloCritica> getCriticas(
                         @Parameter(description = "ID del documento de la crítica a buscar (excluyente con userId y peliculaId)") @RequestParam(required = false) String id,
                         @Parameter(description = "UID del usuario cuyas críticas se quieren recuperar") @RequestParam(required = false) String userId,
@@ -101,7 +101,7 @@ public class CriticaController {
                         @ApiResponse(responseCode = "200", description = "Crítica creada y devuelta exitosamente.", content = @Content(schema = @Schema(implementation = ModeloCritica.class))),
                         @ApiResponse(responseCode = "500", description = "Error interno del servidor al intentar guardar la crítica.")
         })
-        @PostMapping
+        @PostMapping("/")
         public Mono<ModeloCritica> addCritica(@RequestBody ModeloCritica critica) {
                 return Mono.fromCallable(() -> criticaService.addCritica(critica))
                                 .onErrorResume(RuntimeException.class, e -> {

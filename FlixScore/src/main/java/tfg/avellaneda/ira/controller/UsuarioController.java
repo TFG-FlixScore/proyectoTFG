@@ -1,7 +1,5 @@
 package tfg.avellaneda.ira.controller;
 
-import java.util.Map;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -28,6 +26,7 @@ import jakarta.validation.Valid;
  *         Se hacen modificaciones para añadir validaciones y se renombran
  *         algunos endpoints para que sean autodescriptivos.
  */
+
 @RestController
 @RequestMapping("/api/v1/usuarios")
 @Tag(name = "Usuarios", description = "Gestión de usuarios y sus perfiles")
@@ -77,7 +76,6 @@ public class UsuarioController {
         @GetMapping("/{documentId}")
         public Mono<ResponseEntity<ModeloUsuario>> getUsuarioByID(
                         @Parameter(description = "ID del usuario a buscar.") @PathVariable String documentId) {
-
                 return Mono.fromCallable(() -> usuarioService.getUsuarioById(documentId))
                                 .filter(java.util.Optional::isPresent)
                                 .map(java.util.Optional::get)
@@ -107,7 +105,6 @@ public class UsuarioController {
         @GetMapping("/nick/{nick}")
         public Flux<ModeloUsuario> getByNick(
                         @Parameter(description = "Nick del usuario a buscar. La búsqueda es sensible a mayúsculas/minúsculas.") @PathVariable String nick) {
-
                 return Mono.fromCallable(() -> usuarioService.getUsuarioByNick(nick))
                                 .flatMapMany(Flux::fromIterable)
                                 .onErrorResume(RuntimeException.class, e -> {
@@ -131,27 +128,21 @@ public class UsuarioController {
          */
         @Operation(summary = "Registra un nuevo usuario", description = "Crea un nuevo usuario y comprueba que no exista su nick y el formato del correo.", responses = {
                         @ApiResponse(responseCode = "201", description = "Usuario creado exitosamente.", content = @Content(schema = @Schema(implementation = ModeloUsuario.class))),
-                        @ApiResponse(responseCode = "400", description = "Error de validación: Correo electrónico no válido o campos faltantes."),
+                        @ApiResponse(responseCode = "400", description = "Correo electrónico no válido."),
                         @ApiResponse(responseCode = "409", description = "Conflicto: El nick ya está en uso."),
-                        @ApiResponse(responseCode = "500", description = "Error en el servidor.")
+                        @ApiResponse(responseCode = "500", description = "Error al guardar en la base de datos.")
         })
         @PostMapping("/crearUsuario")
-        public Mono<ResponseEntity<Object>> addUsuario(@Valid @RequestBody ModeloUsuario usuario) {
-
+        @ResponseStatus(HttpStatus.CREATED)
+        public Mono<ModeloUsuario> addUsuario(@Valid @RequestBody ModeloUsuario usuario) {
                 return Mono.fromCallable(() -> usuarioService.addUsuario(usuario))
-                                .map(u -> ResponseEntity.status(HttpStatus.CREATED).body((Object) u))
                                 .onErrorResume(RuntimeException.class, e -> {
-                                        String errorMessage = e.getMessage() != null ? e.getMessage()
-                                                        : "Error desconocido al crear usuario.";
-                                        Map<String, String> errorBody = Map.of("status", "error", "message",
-                                                        errorMessage);
-
-                                        if (errorMessage.startsWith("Conflicto: El nick")) {
-                                                return Mono.just(ResponseEntity.status(HttpStatus.CONFLICT)
-                                                                .body(errorBody));
+                                        if (e.getMessage() != null && e.getMessage().startsWith("Conflicto: El nick")) {
+                                                return Mono.error(new ResponseStatusException(
+                                                                HttpStatus.CONFLICT, e.getMessage(), e));
                                         }
-                                        return Mono.just(ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                                                        .body(errorBody));
+                                        return Mono.error(new ResponseStatusException(
+                                                        HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage(), e));
                                 });
         }
 
@@ -179,33 +170,20 @@ public class UsuarioController {
                         @ApiResponse(responseCode = "500", description = "Error al actualizar en la base de datos.")
         })
         @PutMapping("/editarUsuario/{documentId}")
-        public Mono<ResponseEntity<Object>> updateUsuario(
+        public Mono<ResponseEntity<Void>> updateUsuario(
                         @Parameter(description = "documentId del usuario a actualizar.") @PathVariable String documentId,
                         @Valid @RequestBody ModeloUsuario usuario) {
-
                 return Mono.fromCallable(() -> {
                         usuarioService.updateUsuario(documentId, usuario);
-                        return ResponseEntity.status(HttpStatus.NO_CONTENT).build(); // 204 No Content
+                        return ResponseEntity.noContent().<Void>build();
                 })
                                 .onErrorResume(RuntimeException.class, e -> {
-                                        String errorMessage = e.getMessage() != null ? e.getMessage()
-                                                        : "Error desconocido al actualizar usuario.";
-                                        Map<String, String> errorBody = Map.of("status", "error", "message",
-                                                        errorMessage);
-
-                                        if (errorMessage.contains("Actualización fallida: No se encontró")) {
-                                                return Mono.just(ResponseEntity.status(HttpStatus.NOT_FOUND)
-                                                                .body(errorBody)); // 404 Not Found
+                                        if (e.getMessage() != null && e.getMessage()
+                                                        .contains("Actualización fallida: No se encontró")) {
+                                                return Mono.just(ResponseEntity.notFound().build());
                                         }
-
-                                        if (errorMessage.startsWith("Conflicto: El nick")) {
-                                                return Mono.just(ResponseEntity.status(HttpStatus.CONFLICT)
-                                                                .body(errorBody)); // 409 Conflict
-                                        }
-
-                                        // Default 500: Internal Server Error
-                                        return Mono.just(ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                                                        .body(errorBody));
+                                        return Mono.error(new ResponseStatusException(
+                                                        HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage(), e));
                                 });
         }
 
@@ -229,7 +207,6 @@ public class UsuarioController {
         @DeleteMapping("/{documentId}")
         public Mono<ResponseEntity<String>> deleteUsuario(
                         @Parameter(description = "ID del usuario a eliminar.") @PathVariable String documentId) {
-
                 return Mono.fromCallable(() -> usuarioService.deleteUsuario(documentId))
                                 .map(deleted -> {
                                         if (deleted) {
@@ -271,12 +248,14 @@ public class UsuarioController {
                 return Mono.fromCallable(() -> usuarioService.contarAmigosEnComun(usuarioPrincipalId, usuarioAmigoId))
                                 .map(optionalCount -> {
                                         if (optionalCount.isPresent()) {
+                                                // Si ambos usuarios existen se devuelve 200 OK
                                                 return ResponseEntity.ok(optionalCount.get());
                                         } else {
                                                 return ResponseEntity.notFound().<Integer>build();
                                         }
                                 })
                                 .onErrorResume(RuntimeException.class, e -> {
+                                        // Manejo de errores generales (500 Internal Server Error)
                                         return Mono.error(new ResponseStatusException(
                                                         HttpStatus.INTERNAL_SERVER_ERROR,
                                                         "Error al calcular amigos en común: " + e.getMessage(), e));
@@ -296,10 +275,9 @@ public class UsuarioController {
          *         Devuelve HTTP 409 CONFLICT si la amistad ya existe.
          *         Devuelve HTTP 500 INTERNAL SERVER ERROR si ocurre un fallo interno.
          */
-        @Operation(summary = "Añadir un amigo", description = "Crea la relación de amistad unidireccional entre dos usuarios. Es idempotente.", responses = {
+        @Operation(summary = "Añadir un amigo", description = "Crea la relación de amistad entre dos usuarios. Si ya existe, devuelve 204.", responses = {
                         @ApiResponse(responseCode = "204", description = "Amistad agregada o ya existente (No Content)."),
                         @ApiResponse(responseCode = "404", description = "Uno o ambos usuarios no fueron encontrados."),
-                        @ApiResponse(responseCode = "409", description = "Conflicto: Intentando agregarse a sí mismo."),
                         @ApiResponse(responseCode = "500", description = "Error interno del servidor.")
         })
         @PostMapping("/agregarAmigo/{usuarioPrincipalId}/{usuarioAmigoId}")
@@ -320,8 +298,10 @@ public class UsuarioController {
                                         } else if (e.getMessage() != null
                                                         && e.getMessage().contains(("No puedes añadirte"))) {
                                                 return Mono.error(new ResponseStatusException(HttpStatus.CONFLICT,
-                                                                "No te añadas tu mismo, triste"));
+                                                                "No te añadas tu mismo triste"));
                                         }
+                                        // Manejo de otros posibles errores, como si ya son amigos (que idealmente el
+                                        // servicio manejaría sin error si se considera idempotente).
                                         return Mono.error(new ResponseStatusException(
                                                         HttpStatus.INTERNAL_SERVER_ERROR,
                                                         "Error al añadir amigo: " + e.getMessage(), e));
@@ -376,9 +356,8 @@ public class UsuarioController {
          *         Devuelve HTTP 404 si el usuario no existe.
          *         Devuelve HTTP 500 si hay un error interno.
          */
-        @Operation(summary = "Cambiar el nick de un usuario", description = "Actualiza el nick de un usuario, validando que no esté duplicado y no esté vacío.", responses = {
+        @Operation(summary = "Cambiar el nick de un usuario", description = "Actualiza el nick de un usuario validando que no esté duplicado.", responses = {
                         @ApiResponse(responseCode = "204", description = "Nick actualizado exitosamente."),
-                        @ApiResponse(responseCode = "400", description = "Error de validación: El nick no puede estar vacío o en blanco."),
                         @ApiResponse(responseCode = "404", description = "Usuario no encontrado."),
                         @ApiResponse(responseCode = "409", description = "El nuevo nick ya está en uso."),
                         @ApiResponse(responseCode = "500", description = "Error interno del servidor.")
@@ -388,33 +367,19 @@ public class UsuarioController {
                         @Parameter(description = "ID del usuario") @PathVariable String documentId,
                         @RequestParam("Nick") String nuevoNick) {
 
-                if (nuevoNick == null || nuevoNick.isBlank()) {
-                        return Mono.error(new ResponseStatusException(
-                                        HttpStatus.BAD_REQUEST,
-                                        "El nick no puede ser nulo, vacío o contener solo espacios en blanco."));
-                }
-
                 return Mono.fromCallable(() -> {
                         usuarioService.cambiarNick(documentId, nuevoNick);
                         return ResponseEntity.noContent().<Void>build();
                 })
                                 .onErrorResume(RuntimeException.class, e -> {
-
-                                        if (e instanceof ResponseStatusException) {
-                                                return Mono.error(e);
-                                        }
-
                                         if (e.getMessage() != null
                                                         && e.getMessage().contains("El nick ya está en uso")) {
-                                                return Mono.error(new ResponseStatusException(
-                                                                HttpStatus.CONFLICT, e.getMessage(), e));
+                                                return Mono.just(ResponseEntity.status(HttpStatus.CONFLICT).build());
                                         }
-
                                         if (e.getMessage() != null
                                                         && e.getMessage().contains("Usuario no encontrado")) {
                                                 return Mono.just(ResponseEntity.notFound().build());
                                         }
-
                                         return Mono.error(new ResponseStatusException(
                                                         HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage(), e));
                                 });
@@ -422,32 +387,23 @@ public class UsuarioController {
 
         /**
          * Permite actualizar únicamente la URL de la imagen de perfil de un usuario.
-         * La URL *no puede* ser nula ni vacía.
          *
          * @param documentId ID del usuario a actualizar
-         * @param urlImagen  nueva URL de imagen (requerida y no puede ser vacía)
+         * @param urlImagen  nueva URL de imagen (puede ser null o vacía para borrarla)
          * @return Mono<ResponseEntity<Void>>
          *         Devuelve HTTP 204 si se actualizó.
-         *         Devuelve HTTP 400 si la URL es nula o vacía.
          *         Devuelve HTTP 404 si el usuario no existe.
          *         Devuelve HTTP 500 si hay error interno.
          */
-        @Operation(summary = "Cambiar imagen de perfil", description = "Actualiza solo el campo imagen_perfil de un usuario, la URL no puede ser nula ni vacía.", responses = {
+        @Operation(summary = "Cambiar imagen de perfil", description = "Actualiza solo el campo imagen_perfil de un usuario.", responses = {
                         @ApiResponse(responseCode = "204", description = "Imagen actualizada exitosamente."),
-                        @ApiResponse(responseCode = "400", description = "Error de validación: La URL de la imagen no puede estar vacía."),
                         @ApiResponse(responseCode = "404", description = "Usuario no encontrado."),
                         @ApiResponse(responseCode = "500", description = "Error interno del servidor.")
         })
         @PatchMapping("/{documentId}/urlImagen")
         public Mono<ResponseEntity<Void>> cambiarImagenPerfil(
                         @Parameter(description = "ID del usuario") @PathVariable String documentId,
-                        @RequestParam("urlImagen") String urlImagen) {
-
-                if (urlImagen.isBlank()) {
-                        return Mono.error(new ResponseStatusException(
-                                        HttpStatus.BAD_REQUEST,
-                                        "La URL de la imagen no puede estar vacía o en blanco."));
-                }
+                        @RequestParam(value = "urlImagen", required = false) String urlImagen) {
 
                 return Mono.fromCallable(() -> {
                         usuarioService.cambiarImagenPerfil(documentId, urlImagen);
@@ -458,11 +414,9 @@ public class UsuarioController {
                                                         && e.getMessage().contains("Usuario no encontrado")) {
                                                 return Mono.just(ResponseEntity.notFound().build());
                                         }
-                                        if (e instanceof ResponseStatusException) {
-                                                return Mono.error(e);
-                                        }
                                         return Mono.error(new ResponseStatusException(
                                                         HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage(), e));
                                 });
         }
+
 }

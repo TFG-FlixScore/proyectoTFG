@@ -148,23 +148,25 @@ public class UsuarioService {
      * @throws RuntimeException si la operación falla.
      */
     public ModeloUsuario addUsuario(ModeloUsuario entity) {
-        List<ModeloUsuario> conMismoNick = getUsuarioByNick(entity.getNick());
-        if (!conMismoNick.isEmpty()) {
-            logger.warn("Intento de registro con nick duplicado: {}", entity.getNick());
-            throw new RuntimeException("Conflicto: el nick '" + entity.getNick() + "' ya está en uso.");
-        }
-
         String documentId = entity.getDocumentID();
 
         try {
             if (documentId != null && !documentId.trim().isEmpty()) {
+                // Se ha proporcionado un documentId
+                // Usamos un método set con el ID específico
                 repo.setUsuario(documentId, entity).get();
 
+                // El usuario ya tiene el documentID, no necesitamos leerlo de nuevo
                 logger.info("Usuario añadido correctamente con ID proporcionado: {}", documentId);
                 return entity;
 
             } else {
+                // No se ha proporcionado un documentId
+                // Usamos un método de add para que Firestore lo genere
                 var docRef = repo.addUsuario(entity).get();
+
+                // Lee el documento de vuelta para obtener el objeto completo, incluyendo el ID
+                // generado
                 var document = docRef.get().get();
 
                 if (document.exists()) {
@@ -197,7 +199,6 @@ public class UsuarioService {
      *                          el nick está duplicado.
      */
     public void updateUsuario(String usuarioId, ModeloUsuario usuario) {
-
         try {
             // Comprobamos su existencia
             DocumentSnapshot document = repo.getUsuarioById(usuarioId).get();
@@ -287,13 +288,13 @@ public class UsuarioService {
      */
     public void addAmigo(String usuarioPrincipalId, String usuarioAmigoId) {
         try {
-
+            
             // Obtener ambos usuarios. Lanza excepción si no se encuentran
             ModeloUsuario principal = getUsuarioById(usuarioPrincipalId)
-                    .orElseThrow(() -> new RuntimeException("Usuario no encontrado con ID: " + usuarioPrincipalId));
+            .orElseThrow(() -> new RuntimeException("Usuario no encontrado con ID: " + usuarioPrincipalId));
             ModeloUsuario amigo = getUsuarioById(usuarioAmigoId)
-                    .orElseThrow(() -> new RuntimeException("Usuario no encontrado con ID: " + usuarioAmigoId));
-
+            .orElseThrow(() -> new RuntimeException("Usuario no encontrado con ID: " + usuarioAmigoId));
+            
             if (usuarioPrincipalId.equals(usuarioAmigoId)) {
                 logger.warn("El usuario {} intentó añadirse a sí mismo como amigo.", usuarioPrincipalId);
                 throw new IllegalArgumentException("No puedes añadirte a ti mismo como amigo.");

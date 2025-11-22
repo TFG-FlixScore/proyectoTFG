@@ -36,6 +36,7 @@ class AppBarPopupMenu extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return PopupMenuButton<AppBarMenuOption>(
+      key: Key("Navegación"),
       tooltip: 'Navegación',
       onSelected: (item) => _onSelected(context, item),
       icon: CircleAvatar(
@@ -51,6 +52,7 @@ class AppBarPopupMenu extends StatelessWidget {
       ),
       itemBuilder: (_) => [
         const PopupMenuItem(
+          key: Key("Ver mi perfil"),
           value: AppBarMenuOption.verPerfil,
           child: Row(
             children: [
@@ -71,6 +73,7 @@ class AppBarPopupMenu extends StatelessWidget {
           ),
         ),
         const PopupMenuItem(
+          key: Key('Cerrar Sesión'),
           value: AppBarMenuOption.cerrarSesion,
           child: Row(
             children: [

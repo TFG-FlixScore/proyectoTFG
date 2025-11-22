@@ -137,6 +137,7 @@ class _InformacionBasicaCardState extends State<InformacionBasicaCard> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               ElevatedButton(
+                key: Key('EliminarCuenta'),
                 onPressed: () async {
                   final provider = Provider.of<LoginProvider>(context, listen: false);
                   final bool success = await provider.eliminarCuentaDefinitivamente(context);

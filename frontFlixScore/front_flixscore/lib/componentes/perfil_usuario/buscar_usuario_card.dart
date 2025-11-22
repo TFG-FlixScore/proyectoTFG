@@ -86,6 +86,7 @@ class BuscarUsuarioCardState extends State<BuscarUsuarioCard> {
           ),
           const SizedBox(height: 20),
           TextField(
+            key: Key('BuscarAmigo'),
             controller: _searchController,
             onSubmitted: (_) => _buscarYagregar(context), 
             style: const TextStyle(color: _primaryTextColor),
@@ -94,6 +95,7 @@ class BuscarUsuarioCardState extends State<BuscarUsuarioCard> {
               hintStyle: const TextStyle(color: _textoEditable),
               prefixIcon: const Icon(Icons.person_search_outlined, color: _subtitleColor),
               suffixIcon: IconButton(
+                key: Key('Buscar'),
                 icon: const Icon(Icons.search, color: _subtitleColor),
                 onPressed: () => _buscarYagregar(context), 
                 tooltip: 'Buscar',

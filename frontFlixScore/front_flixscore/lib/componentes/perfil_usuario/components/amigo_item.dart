@@ -76,6 +76,7 @@ class AmigoListItem extends StatelessWidget {
               ),
               // Botón separado: NO abre el perfil
               IconButton(
+                key: Key('QuitarAmigo'),
                 onPressed: onQuitarAmigo,
                 icon: const Icon(
                   Icons.person_remove_outlined,

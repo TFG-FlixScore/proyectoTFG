@@ -1,0 +1,36 @@
+import 'package:flutter/material.dart';
+
+class ResumenPelicula extends StatelessWidget {
+  final String titulo;
+  final String resumen;
+  final String fechaEstreno;
+
+  const ResumenPelicula({
+    super.key,
+    required this.titulo,
+    required this.resumen,
+    required this.fechaEstreno,});
+
+  @override
+  Widget build(BuildContext context) {
+
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.start,
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          titulo.length > 20 ? "${titulo.substring(0, 20)}..." : titulo,
+          style: TextStyle(
+            color: Colors.white,
+            fontSize: 20,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        
+        Text(fechaEstreno, style: TextStyle(color: Colors.grey[400], fontSize: 16)),
+        SizedBox(height: 12),
+        Text(resumen.length > 80 ? "${resumen.substring(0, 80)}..." : resumen, style: TextStyle(color: Colors.grey[400], fontSize: 16))
+      ],
+    );
+  }
+}

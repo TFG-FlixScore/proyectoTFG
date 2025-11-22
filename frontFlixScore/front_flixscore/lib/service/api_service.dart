@@ -77,7 +77,7 @@ class ApiService {
   // POST /api/v1/criticas (Añadir)
   Future<ModeloCritica> addCritica(ModeloCritica critica) async {
     final response = await http.post(
-      Uri.parse('$_baseUrl/api/v1/criticas'),
+      Uri.parse('$_baseUrl/api/v1/criticas/'),
       headers: _headers,
       body: json.encode(critica.toMap()), 
     );

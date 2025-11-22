@@ -15,9 +15,9 @@
 					"script": {
 						"exec": [
 							"pm.test(\"Codigo de estado 201, usuario creado\", function () {\r",
-							"    if(pm.response == 201){\r",
+							"\r",
 							"     pm.response.to.have.status(201);\r",
-							"    }\r",
+							"\r",
 							"});\r",
 							"\r",
 							"var json = pm.response.json();\r",
@@ -44,7 +44,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\r\n  \"correo\": \"{{correo}}\",\r\n  \"imagen_perfil\": \"{{imagen_perfil}}\",\r\n  \"nick\": \"{{nick}}\",\r\n  \"amigos_id\": [{{amigos_id}}],\r\n  \"peliculas_criticadas\": [\r\n    {{peliculas_criticadas}}\r\n  ],\r\n  \"peliculas_favoritas\": [\r\n   {{peliculas_favoritas}}\r\n  ],\r\n  \"peliculas_vistas\": [\r\n    {{peliculas_vistas}}\r\n  ]\r\n}",
+					"raw": "{\r\n  \"documentID\": \"{{nick}}\",\r\n  \"correo\": \"{{correo}}\",\r\n  \"imagen_perfil\": \"{{imagen_perfil}}\",\r\n  \"nick\": \"{{nick}}\",\r\n  \"amigos_id\": [{{amigos_id}}],\r\n  \"peliculas_criticadas\": [\r\n    {{peliculas_criticadas}}\r\n  ],\r\n  \"peliculas_favoritas\": [\r\n   {{peliculas_favoritas}}\r\n  ],\r\n  \"peliculas_vistas\": [\r\n    {{peliculas_vistas}}\r\n  ]\r\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -72,9 +72,9 @@
 					"script": {
 						"exec": [
 							"pm.test(\"Codigo de estado 409, nick duplicado\", function () {\r",
-							"    if(pm.response == 409){\r",
+							"\r",
 							"     pm.response.to.have.status(409);\r",
-							"    }\r",
+							"\r",
 							"});\r",
 							"\r",
 							""
@@ -118,9 +118,9 @@
 					"script": {
 						"exec": [
 							"pm.test(\"Codigo de estado 400, Correo no valido\", function () {\r",
-							"    if(pm.response == 400){\r",
+							"\r",
 							"     pm.response.to.have.status(400);\r",
-							"    }\r",
+							"\r",
 							"});\r",
 							"\r",
 							""
@@ -157,16 +157,208 @@
 			"response": []
 		},
 		{
-			"name": "CrearUsuario error al guardar en la base de datos(Preguntar)",
+			"name": "Actualizar Usuario actualizado exitosamente",
 			"event": [
 				{
 					"listen": "test",
 					"script": {
 						"exec": [
-							"pm.test(\"Codigo de estado 500, verificacion error al guardar en la base de datos\", function () {\r",
-							"    if(pm.response == 500){\r",
-							"     pm.response.to.have.status(500);\r",
-							"    }\r",
+							"pm.test(\"Codigo de estado 204, usuario actualizado\", function () {\r",
+							"\r",
+							"     pm.response.to.have.status(204);\r",
+							"\r",
+							"});\r",
+							"\r",
+							"\r",
+							"pm.environment.set(\"correo\", pm.environment.get(\"correo\")+\"edit\");\r",
+							"pm.environment.set(\"imagen_perfil\",  pm.environment.get(\"imagen_perfil\")+\"edit\");\r",
+							"pm.environment.set(\"nickedit\",  pm.environment.get(\"nick\")+\"edit\");\r",
+							"pm.environment.set(\"nick\",  pm.environment.get(\"nick\")+\"edit\");\r",
+							"\r",
+							"\r",
+							"pm.test(`Usuario modificado - correo: ${pm.environment.get(\"correo\")} - nick: ${pm.environment.get(\"nick\")}`)"
+						],
+						"type": "text/javascript",
+						"packages": {},
+						"requests": {}
+					}
+				}
+			],
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"correo\": \"{{correo}}edit\",\r\n  \"imagen_perfil\": \"{{imagen_perfil}}edit\",\r\n  \"nick\": \"{{nick}}edit\",\r\n  \"peliculas_criticadas\": [\r\n    {{peliculas_criticadas}}\r\n  ],\r\n  \"peliculas_favoritas\": [\r\n   {{peliculas_favoritas}}\r\n  ],\r\n  \"peliculas_vistas\": [\r\n    {{peliculas_vistas}}\r\n  ]\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{UrlBase}}/usuarios/editarUsuario/{{documentID}}",
+					"host": [
+						"{{UrlBase}}"
+					],
+					"path": [
+						"usuarios",
+						"editarUsuario",
+						"{{documentID}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Actualizar Correo no valido",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Codigo de estado 400, correo no valido\", function () {\r",
+							"\r",
+							"     pm.response.to.have.status(400);\r",
+							"\r",
+							"});\r",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {},
+						"requests": {}
+					}
+				}
+			],
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"correo\": \"asdasd.net\",\r\n  \"imagen_perfil\": \"{{imagen_perfil}}edit\",\r\n  \"nick\": \"{{nick}}edit\",\r\n  \"amigos_id\": [{{amigos_id}}\r\n  ],\r\n  \"peliculas_criticadas\": [\r\n    {{peliculas_criticadas}}\r\n  ],\r\n  \"peliculas_favoritas\": [\r\n   {{peliculas_favoritas}}\r\n  ],\r\n  \"peliculas_vistas\": [\r\n    {{peliculas_vistas}}\r\n  ]\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{UrlBase}}/usuarios/editarUsuario/{{documentID}}",
+					"host": [
+						"{{UrlBase}}"
+					],
+					"path": [
+						"usuarios",
+						"editarUsuario",
+						"{{documentID}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Actualizar Usuario no valido",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Codigo de estado 404, usuario no valido\", function () {\r",
+							"\r",
+							"     pm.response.to.have.status(404);\r",
+							"\r",
+							"});\r",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {},
+						"requests": {}
+					}
+				}
+			],
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"correo\": \"{{correo}}edit\",\r\n  \"imagen_perfil\": \"{{imagen_perfil}}edit\",\r\n  \"nick\": \"{{nick}}edit\",\r\n  \"amigos_id\": [{{amigos_id}}\r\n  ],\r\n  \"peliculas_criticadas\": [\r\n    {{peliculas_criticadas}}\r\n  ],\r\n  \"peliculas_favoritas\": [\r\n   {{peliculas_favoritas}}\r\n  ],\r\n  \"peliculas_vistas\": [\r\n    {{peliculas_vistas}}\r\n  ]\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{UrlBase}}/usuarios/editarUsuario/1111111111",
+					"host": [
+						"{{UrlBase}}"
+					],
+					"path": [
+						"usuarios",
+						"editarUsuario",
+						"1111111111"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Actualizar nick duplicado",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Codigo de estado 409, nick duplicado\", function () {\r",
+							"\r",
+							"     pm.response.to.have.status(409);\r",
+							"\r",
+							"});\r",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {},
+						"requests": {}
+					}
+				}
+			],
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"correo\": \"{{correo}}edit\",\r\n  \"imagen_perfil\": \"{{imagen_perfil}}edit\",\r\n  \"nick\": \"OpaHostil\",\r\n  \"amigos_id\": [{{amigos_id}}\r\n  ],\r\n  \"peliculas_criticadas\": [\r\n    {{peliculas_criticadas}}\r\n  ],\r\n  \"peliculas_favoritas\": [\r\n   {{peliculas_favoritas}}\r\n  ],\r\n  \"peliculas_vistas\": [\r\n    {{peliculas_vistas}}\r\n  ]\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{UrlBase}}/usuarios/editarUsuario/{{documentID}}",
+					"host": [
+						"{{UrlBase}}"
+					],
+					"path": [
+						"usuarios",
+						"editarUsuario",
+						"{{documentID}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "AgregarAmigo correcto",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Codigo de estado 204, se añade amigo con exito\", function () {\r",
+							"\r",
+							"     pm.response.to.have.status(204);\r",
+							"\r",
 							"});\r",
 							""
 						],
@@ -181,7 +373,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\r\n  \"correo\": \"{{correo}}\",\r\n  \"imagen_perfil\": \"{{imagen_perfil}}\",\r\n  \"nick\": \"{{nick}}\",\r\n  \"amigos_id\": [{{amigos_id}}],\r\n  \"peliculas_criticadas\": [\r\n    {{peliculas_criticadas}}\r\n  ],\r\n  \"peliculas_favoritas\": [\r\n   {{peliculas_favoritas}}\r\n  ],\r\n  \"peliculas_vistas\": [\r\n    {{peliculas_vistas}}\r\n  ]\r\n}",
+					"raw": "",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -189,13 +381,248 @@
 					}
 				},
 				"url": {
-					"raw": "{{UrlBase}}/usuarios/crearUsuario",
+					"raw": "{{UrlBase}}/usuarios/agregarAmigo/{{documentID}}/{{documentIDotro}}",
 					"host": [
 						"{{UrlBase}}"
 					],
 					"path": [
 						"usuarios",
-						"crearUsuario"
+						"agregarAmigo",
+						"{{documentID}}",
+						"{{documentIDotro}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "AgregarAmigo usuario principal erroneo",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Codigo de estado 404, usuario principal erroneo\", function () {\r",
+							"\r",
+							"     pm.response.to.have.status(404);\r",
+							"\r",
+							"});\r",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {},
+						"requests": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{UrlBase}}/usuarios/agregarAmigo/111111111/{{documentIDotro}}",
+					"host": [
+						"{{UrlBase}}"
+					],
+					"path": [
+						"usuarios",
+						"agregarAmigo",
+						"111111111",
+						"{{documentIDotro}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "AgregarAmigo usuario amigo erroneo",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Codigo de estado 404, usuario amigo erroneo\", function () {\r",
+							"\r",
+							"     pm.response.to.have.status(404);\r",
+							"\r",
+							"});\r",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {},
+						"requests": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{UrlBase}}/usuarios/agregarAmigo/{{documentID}}/111111111",
+					"host": [
+						"{{UrlBase}}"
+					],
+					"path": [
+						"usuarios",
+						"agregarAmigo",
+						"{{documentID}}",
+						"111111111"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "AgregarAmigo usuarios iguales Existentes",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Codigo de estado 409, ambos usuarios iguales existentes\", function () {\r",
+							"\r",
+							"     pm.response.to.have.status(409);\r",
+							"\r",
+							"});\r",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {},
+						"requests": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{UrlBase}}/usuarios/agregarAmigo/23l4EPjjy0MpY4l4oeU6AGDOS8S2/23l4EPjjy0MpY4l4oeU6AGDOS8S2",
+					"host": [
+						"{{UrlBase}}"
+					],
+					"path": [
+						"usuarios",
+						"agregarAmigo",
+						"23l4EPjjy0MpY4l4oeU6AGDOS8S2",
+						"23l4EPjjy0MpY4l4oeU6AGDOS8S2"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "AgregarAmigo usuarios iguales erroneos",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Codigo de estado 404, ambos usuarios iguales erroneo\", function () {\r",
+							"\r",
+							"     pm.response.to.have.status(404);\r",
+							"\r",
+							"});\r",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {},
+						"requests": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{UrlBase}}/usuarios/agregarAmigo/111111111/111111111",
+					"host": [
+						"{{UrlBase}}"
+					],
+					"path": [
+						"usuarios",
+						"agregarAmigo",
+						"111111111",
+						"111111111"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "AgregarAmigo usuarios distintos erroneos",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Codigo de estado 404, ambos usuarios erroneo\", function () {\r",
+							"     pm.response.to.have.status(404);\r",
+							"});\r",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {},
+						"requests": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{UrlBase}}/usuarios/agregarAmigo/111111111asd/111111111",
+					"host": [
+						"{{UrlBase}}"
+					],
+					"path": [
+						"usuarios",
+						"agregarAmigo",
+						"111111111asd",
+						"111111111"
 					]
 				}
 			},
@@ -278,150 +705,16 @@
 			"response": []
 		},
 		{
-			"name": "Consulta por ID error interno del servidor(Preguntar)",
+			"name": "Actualizar imagen url vacia",
 			"event": [
 				{
 					"listen": "test",
 					"script": {
 						"exec": [
-							"pm.test(\"Codigo de respuesta 500, error interno.\", function () {\r",
-							"    pm.response.to.have.status(500);\r",
-							"});\r",
-							""
-						],
-						"type": "text/javascript",
-						"packages": {},
-						"requests": {}
-					}
-				}
-			],
-			"request": {
-				"method": "GET",
-				"header": [],
-				"url": {
-					"raw": "{{UrlBase}}/usuarios/{{documentID}}",
-					"host": [
-						"{{UrlBase}}"
-					],
-					"path": [
-						"usuarios",
-						"{{documentID}}"
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "Actualizar Usuario actualizado exitosamente",
-			"event": [
-				{
-					"listen": "test",
-					"script": {
-						"exec": [
-							"pm.test(\"Codigo de estado 204, usuario creado\", function () {\r",
-							"    if(pm.response == 204){\r",
-							"     pm.response.to.have.status(204);\r",
-							"    }\r",
-							"});\r",
+							"pm.test(\"Codigo de estado 404, Url incorrecta\", function () {\r",
 							"\r",
-							"\r",
-							"pm.environment.set(\"correo\", pm.environment.get(\"correo\")+\"edit\");\r",
-							"pm.environment.set(\"imagen_perfil\",  pm.environment.get(\"imagen_perfil\")+\"edit\");\r",
-							"pm.environment.set(\"nickedit\",  pm.environment.get(\"nick\")+\"edit\");\r",
-							"pm.environment.set(\"nick\",  pm.environment.get(\"nick\")+\"edit\");\r",
-							"pm.environment.set(\"amigos_id\",  pm.environment.get(\"correo\")+\"edit\");\r",
-							"\r",
-							"pm.test(`Usuario modificado - correo: ${pm.environment.get(\"correo\")} - nick: ${pm.environment.get(\"nick\")}`)"
-						],
-						"type": "text/javascript",
-						"packages": {},
-						"requests": {}
-					}
-				}
-			],
-			"request": {
-				"method": "PUT",
-				"header": [],
-				"body": {
-					"mode": "raw",
-					"raw": "{\r\n  \"correo\": \"{{correo}}edit\",\r\n  \"imagen_perfil\": \"{{imagen_perfil}}edit\",\r\n  \"nick\": \"{{nick}}edit\",\r\n  \"amigos_id\": [{{amigos_id}}\r\n  ],\r\n  \"peliculas_criticadas\": [\r\n    {{peliculas_criticadas}}\r\n  ],\r\n  \"peliculas_favoritas\": [\r\n   {{peliculas_favoritas}}\r\n  ],\r\n  \"peliculas_vistas\": [\r\n    {{peliculas_vistas}}\r\n  ]\r\n}",
-					"options": {
-						"raw": {
-							"language": "json"
-						}
-					}
-				},
-				"url": {
-					"raw": "{{UrlBase}}/usuarios/editarUsuario/{{documentID}}",
-					"host": [
-						"{{UrlBase}}"
-					],
-					"path": [
-						"usuarios",
-						"editarUsuario",
-						"{{documentID}}"
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "Actualizar Correo no valido",
-			"event": [
-				{
-					"listen": "test",
-					"script": {
-						"exec": [
-							"pm.test(\"Codigo de estado 400, correo no valido\", function () {\r",
-							"    if(pm.response == 400){\r",
-							"     pm.response.to.have.status(400);\r",
-							"    }\r",
-							"});\r",
-							""
-						],
-						"type": "text/javascript",
-						"packages": {},
-						"requests": {}
-					}
-				}
-			],
-			"request": {
-				"method": "PUT",
-				"header": [],
-				"body": {
-					"mode": "raw",
-					"raw": "{\r\n  \"correo\": \"asdasd.net\",\r\n  \"imagen_perfil\": \"{{imagen_perfil}}edit\",\r\n  \"nick\": \"{{nick}}edit\",\r\n  \"amigos_id\": [{{amigos_id}}\r\n  ],\r\n  \"peliculas_criticadas\": [\r\n    {{peliculas_criticadas}}\r\n  ],\r\n  \"peliculas_favoritas\": [\r\n   {{peliculas_favoritas}}\r\n  ],\r\n  \"peliculas_vistas\": [\r\n    {{peliculas_vistas}}\r\n  ]\r\n}",
-					"options": {
-						"raw": {
-							"language": "json"
-						}
-					}
-				},
-				"url": {
-					"raw": "{{UrlBase}}/usuarios/editarUsuario/{{documentID}}",
-					"host": [
-						"{{UrlBase}}"
-					],
-					"path": [
-						"usuarios",
-						"editarUsuario",
-						"{{documentID}}"
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "Actualizar Usuario no valido",
-			"event": [
-				{
-					"listen": "test",
-					"script": {
-						"exec": [
-							"pm.test(\"Codigo de estado 404, usuario no valido\", function () {\r",
-							"    if(pm.response == 404){\r",
 							"     pm.response.to.have.status(404);\r",
-							"    }\r",
+							"\r",
 							"});\r",
 							""
 						],
@@ -432,11 +725,11 @@
 				}
 			],
 			"request": {
-				"method": "PUT",
+				"method": "PATCH",
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\r\n  \"correo\": \"{{correo}}edit\",\r\n  \"imagen_perfil\": \"{{imagen_perfil}}edit\",\r\n  \"nick\": \"{{nick}}edit\",\r\n  \"amigos_id\": [{{amigos_id}}\r\n  ],\r\n  \"peliculas_criticadas\": [\r\n    {{peliculas_criticadas}}\r\n  ],\r\n  \"peliculas_favoritas\": [\r\n   {{peliculas_favoritas}}\r\n  ],\r\n  \"peliculas_vistas\": [\r\n    {{peliculas_vistas}}\r\n  ]\r\n}",
+					"raw": "",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -444,14 +737,175 @@
 					}
 				},
 				"url": {
-					"raw": "{{UrlBase}}/usuarios/editarUsuario/1111111111",
+					"raw": "{{UrlBase}}/usuarios/{{documentID}}/urlImagen?urlImagen=",
 					"host": [
 						"{{UrlBase}}"
 					],
 					"path": [
 						"usuarios",
-						"editarUsuario",
-						"1111111111"
+						"{{documentID}}",
+						"urlImagen"
+					],
+					"query": [
+						{
+							"key": "urlImagen",
+							"value": ""
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Actualizar imagen correcto",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Codigo de estado 204, imagen actualizada\", function () {\r",
+							"\r",
+							"     pm.response.to.have.status(204);\r",
+							"\r",
+							"});\r",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {},
+						"requests": {}
+					}
+				}
+			],
+			"request": {
+				"method": "PATCH",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{UrlBase}}/usuarios/{{documentID}}/urlImagen?urlImagen=https://www.google.com/imgres?q=playa%26imgurl=https%3A%2F%2Fupload.wikimedia.org%2Fwikipedia%2Fcommons%2F9%2F96%2FBarbados_beach.jpg%26imgrefurl=https%3A%2F%2Fes.wikipedia.org%2Fwiki%2FPlaya%26docid=9IsK5H39ETWTpM%26tbnid=E2iQQ9DkDEVeiM%26vet=12ahUKEwjUyYTDsPGQAxWfVKQEHSwUDxMQM3oECBYQAA..i%26w=640%26h=480%26hcb=2%26ved=2ahUKEwjUyYTDsPGQAxWfVKQEHSwUDxMQM3oECBYQAA",
+					"host": [
+						"{{UrlBase}}"
+					],
+					"path": [
+						"usuarios",
+						"{{documentID}}",
+						"urlImagen"
+					],
+					"query": [
+						{
+							"key": "urlImagen",
+							"value": "https://www.google.com/imgres?q=playa%26imgurl=https%3A%2F%2Fupload.wikimedia.org%2Fwikipedia%2Fcommons%2F9%2F96%2FBarbados_beach.jpg%26imgrefurl=https%3A%2F%2Fes.wikipedia.org%2Fwiki%2FPlaya%26docid=9IsK5H39ETWTpM%26tbnid=E2iQQ9DkDEVeiM%26vet=12ahUKEwjUyYTDsPGQAxWfVKQEHSwUDxMQM3oECBYQAA..i%26w=640%26h=480%26hcb=2%26ved=2ahUKEwjUyYTDsPGQAxWfVKQEHSwUDxMQM3oECBYQAA"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Actualizar imagen usuario incorrecto",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Codigo de estado 404, usuario incorrecto\", function () {\r",
+							"     pm.response.to.have.status(404);\r",
+							"    \r",
+							"});\r",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {},
+						"requests": {}
+					}
+				}
+			],
+			"request": {
+				"method": "PATCH",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{UrlBase}}/usuarios/1111111/urlImagen?urlImagen=https://www.google.com/imgres?q=playa%26imgurl=https%3A%2F%2Fupload.wikimedia.org%2Fwikipedia%2Fcommons%2F9%2F96%2FBarbados_beach.jpg%26imgrefurl=https%3A%2F%2Fes.wikipedia.org%2Fwiki%2FPlaya%26docid=9IsK5H39ETWTpM%26tbnid=E2iQQ9DkDEVeiM%26vet=12ahUKEwjUyYTDsPGQAxWfVKQEHSwUDxMQM3oECBYQAA..i%26w=640%26h=480%26hcb=2%26ved=2ahUKEwjUyYTDsPGQAxWfVKQEHSwUDxMQM3oECBYQAA",
+					"host": [
+						"{{UrlBase}}"
+					],
+					"path": [
+						"usuarios",
+						"1111111",
+						"urlImagen"
+					],
+					"query": [
+						{
+							"key": "urlImagen",
+							"value": "https://www.google.com/imgres?q=playa%26imgurl=https%3A%2F%2Fupload.wikimedia.org%2Fwikipedia%2Fcommons%2F9%2F96%2FBarbados_beach.jpg%26imgrefurl=https%3A%2F%2Fes.wikipedia.org%2Fwiki%2FPlaya%26docid=9IsK5H39ETWTpM%26tbnid=E2iQQ9DkDEVeiM%26vet=12ahUKEwjUyYTDsPGQAxWfVKQEHSwUDxMQM3oECBYQAA..i%26w=640%26h=480%26hcb=2%26ved=2ahUKEwjUyYTDsPGQAxWfVKQEHSwUDxMQM3oECBYQAA"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Actualizar nick vacio",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Codigo de estado 500, nick vacio\", function () {\r",
+							"\r",
+							"     pm.response.to.have.status(500);\r",
+							"\r",
+							"});\r",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {},
+						"requests": {}
+					}
+				}
+			],
+			"request": {
+				"method": "PATCH",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{UrlBase}}/usuarios/{{documentID}}/nick?Nick=",
+					"host": [
+						"{{UrlBase}}"
+					],
+					"path": [
+						"usuarios",
+						"{{documentID}}",
+						"nick"
+					],
+					"query": [
+						{
+							"key": "Nick",
+							"value": ""
+						}
 					]
 				}
 			},
@@ -464,10 +918,10 @@
 					"listen": "test",
 					"script": {
 						"exec": [
-							"pm.test(\"Codigo de estado 409, nick duplicado\", function () {\r",
-							"    if(pm.response == 409){\r",
+							"pm.test(\"Codigo de estado 409, nick ya esta en uso\", function () {\r",
+							"\r",
 							"     pm.response.to.have.status(409);\r",
-							"    }\r",
+							"\r",
 							"});\r",
 							""
 						],
@@ -478,11 +932,11 @@
 				}
 			],
 			"request": {
-				"method": "PUT",
+				"method": "PATCH",
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\r\n  \"correo\": \"{{correo}}edit\",\r\n  \"imagen_perfil\": \"{{imagen_perfil}}edit\",\r\n  \"nick\": \"OpaHostil\",\r\n  \"amigos_id\": [{{amigos_id}}\r\n  ],\r\n  \"peliculas_criticadas\": [\r\n    {{peliculas_criticadas}}\r\n  ],\r\n  \"peliculas_favoritas\": [\r\n   {{peliculas_favoritas}}\r\n  ],\r\n  \"peliculas_vistas\": [\r\n    {{peliculas_vistas}}\r\n  ]\r\n}",
+					"raw": "",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -490,30 +944,36 @@
 					}
 				},
 				"url": {
-					"raw": "{{UrlBase}}/usuarios/editarUsuario/{{documentID}}",
+					"raw": "{{UrlBase}}/usuarios/{{documentID}}/nick?Nick=OpaHostil",
 					"host": [
 						"{{UrlBase}}"
 					],
 					"path": [
 						"usuarios",
-						"editarUsuario",
-						"{{documentID}}"
+						"{{documentID}}",
+						"nick"
+					],
+					"query": [
+						{
+							"key": "Nick",
+							"value": "OpaHostil"
+						}
 					]
 				}
 			},
 			"response": []
 		},
 		{
-			"name": "Actualizar error al actualizar la bbdd(Preguntar)",
+			"name": "Actualizar nick usuario no existe",
 			"event": [
 				{
 					"listen": "test",
 					"script": {
 						"exec": [
-							"pm.test(\"Codigo de estado 500, nick duplicado\", function () {\r",
-							"    if(pm.response == 500){\r",
-							"     pm.response.to.have.status(500);\r",
-							"    }\r",
+							"pm.test(\"Codigo de estado 404, usuario no existe\", function () {\r",
+							"\r",
+							"     pm.response.to.have.status(404);\r",
+							"\r",
 							"});\r",
 							""
 						],
@@ -524,11 +984,11 @@
 				}
 			],
 			"request": {
-				"method": "PUT",
+				"method": "PATCH",
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\r\n  \"correo\": \"{{correo}}edit\",\r\n  \"imagen_perfil\": \"{{imagen_perfil}}edit\",\r\n  \"nick\": \"OpaHostil\",\r\n  \"amigos_id\": [{{amigos_id}}\r\n  ],\r\n  \"peliculas_criticadas\": [\r\n    {{peliculas_criticadas}}\r\n  ],\r\n  \"peliculas_favoritas\": [\r\n   {{peliculas_favoritas}}\r\n  ],\r\n  \"peliculas_vistas\": [\r\n    {{peliculas_vistas}}\r\n  ]\r\n}",
+					"raw": "",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -536,14 +996,73 @@
 					}
 				},
 				"url": {
-					"raw": "{{UrlBase}}/usuarios/editarUsuario/{{documentID}}",
+					"raw": "{{UrlBase}}/usuarios/11111111111111/nick?Nick=ricardopruebasnoexiste",
 					"host": [
 						"{{UrlBase}}"
 					],
 					"path": [
 						"usuarios",
-						"editarUsuario",
-						"{{documentID}}"
+						"11111111111111",
+						"nick"
+					],
+					"query": [
+						{
+							"key": "Nick",
+							"value": "ricardopruebasnoexiste"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Actualizar nick correcto",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Codigo de estado 204, nick actualizado\", function () {\r",
+							"     pm.response.to.have.status(204);\r",
+							"});\r",
+							"\r",
+							"\r",
+							"pm.environment.set(\"nickedit\",  \"RicardoPruebas\");\r",
+							"pm.environment.set(\"nick\",  \"RicardoPruebas\");"
+						],
+						"type": "text/javascript",
+						"packages": {},
+						"requests": {}
+					}
+				}
+			],
+			"request": {
+				"method": "PATCH",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{UrlBase}}/usuarios/{{documentID}}/nick?Nick=RicardoPruebas",
+					"host": [
+						"{{UrlBase}}"
+					],
+					"path": [
+						"usuarios",
+						"{{documentID}}",
+						"nick"
+					],
+					"query": [
+						{
+							"key": "Nick",
+							"value": "RicardoPruebas"
+						}
 					]
 				}
 			},
@@ -601,14 +1120,14 @@
 			"response": []
 		},
 		{
-			"name": "Consulta por Nick error interno(preguntar)",
+			"name": "Consulta Amigos en comun correcta",
 			"event": [
 				{
 					"listen": "test",
 					"script": {
 						"exec": [
-							"pm.test(\"Codigo de respuesta 500, error interno.\", function () {\r",
-							"    pm.response.to.have.status(500);\r",
+							"pm.test(\"Codigo de respuesta 200, Consulta correcta.\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
 							"});\r",
 							""
 						],
@@ -633,14 +1152,156 @@
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "{{UrlBase}}/usuarios/nick/1111111111",
+					"raw": "{{UrlBase}}/usuarios/amigosEnComun/{{documentID}}/{{documentIDotro}}",
 					"host": [
 						"{{UrlBase}}"
 					],
 					"path": [
 						"usuarios",
-						"nick",
-						"1111111111"
+						"amigosEnComun",
+						"{{documentID}}",
+						"{{documentIDotro}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Consulta Amigos en comun ID principal erroneo",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Codigo de respuesta 404, Usuarios mal encontrados.\", function () {\r",
+							"    pm.response.to.have.status(404);\r",
+							"});\r",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {},
+						"requests": {}
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript",
+						"packages": {},
+						"requests": {}
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{UrlBase}}/usuarios/amigosEnComun/111111111/{{documentIDotro}}",
+					"host": [
+						"{{UrlBase}}"
+					],
+					"path": [
+						"usuarios",
+						"amigosEnComun",
+						"111111111",
+						"{{documentIDotro}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Consulta Amigos en comun ID secundario erroneo",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Codigo de respuesta 404, Usuarios mal encontrados.\", function () {\r",
+							"    pm.response.to.have.status(404);\r",
+							"});\r",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {},
+						"requests": {}
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript",
+						"packages": {},
+						"requests": {}
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{UrlBase}}/usuarios/amigosEnComun/{{documentID}}/111111111",
+					"host": [
+						"{{UrlBase}}"
+					],
+					"path": [
+						"usuarios",
+						"amigosEnComun",
+						"{{documentID}}",
+						"111111111"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Consulta Amigos en comun ambos ID erroneos",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Codigo de respuesta 404, Usuarios mal encontrados.\", function () {\r",
+							"    pm.response.to.have.status(404);\r",
+							"});\r",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {},
+						"requests": {}
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript",
+						"packages": {},
+						"requests": {}
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{UrlBase}}/usuarios/amigosEnComun/11111111/111111111",
+					"host": [
+						"{{UrlBase}}"
+					],
+					"path": [
+						"usuarios",
+						"amigosEnComun",
+						"11111111",
+						"111111111"
 					]
 				}
 			},
@@ -680,6 +1341,191 @@
 					],
 					"path": [
 						"usuarios"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Eliminacion amigo id principal erroneo",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Codigo de respuesta 404, usuario no encontrado.\", function () {\r",
+							"    pm.response.to.have.status(404);\r",
+							"});\r",
+							"\r",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {},
+						"requests": {}
+					}
+				}
+			],
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "{{UrlBase}}/usuarios/eliminarAmigo/11111111/{{documentIDotro}}",
+					"host": [
+						"{{UrlBase}}"
+					],
+					"path": [
+						"usuarios",
+						"eliminarAmigo",
+						"11111111",
+						"{{documentIDotro}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Eliminacion amigo id secundario erroneo",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Codigo de respuesta 404, usuario no encontrado.\", function () {\r",
+							"    pm.response.to.have.status(404);\r",
+							"});\r",
+							"\r",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {},
+						"requests": {}
+					}
+				}
+			],
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "{{UrlBase}}/usuarios/eliminarAmigo/{{documentID}}/11111111",
+					"host": [
+						"{{UrlBase}}"
+					],
+					"path": [
+						"usuarios",
+						"eliminarAmigo",
+						"{{documentID}}",
+						"11111111"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Eliminacion amigo id principal y secundario iguales",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Codigo de respuesta 404, usuario duplicado no permitido.\", function () {\r",
+							"    pm.response.to.have.status(404);\r",
+							"});\r",
+							"\r",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {},
+						"requests": {}
+					}
+				}
+			],
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "{{UrlBase}}/usuarios/eliminarAmigo/{{documentID}}/{{documentID}}",
+					"host": [
+						"{{UrlBase}}"
+					],
+					"path": [
+						"usuarios",
+						"eliminarAmigo",
+						"{{documentID}}",
+						"{{documentID}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Eliminacion amigo id principal y secundario vacios",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Codigo de respuesta 404, usuario vacio no encontrados\", function () {\r",
+							"    pm.response.to.have.status(404);\r",
+							"});\r",
+							"\r",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {},
+						"requests": {}
+					}
+				}
+			],
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "{{UrlBase}}/usuarios/eliminarAmigo/ / ",
+					"host": [
+						"{{UrlBase}}"
+					],
+					"path": [
+						"usuarios",
+						"eliminarAmigo",
+						" ",
+						" "
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Eliminacion amigo correcta",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Codigo de respuesta 204,Eliminado exitosamente.\", function () {\r",
+							"    pm.response.to.have.status(204);\r",
+							"});\r",
+							"\r",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {},
+						"requests": {}
+					}
+				}
+			],
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "{{UrlBase}}/usuarios/eliminarAmigo/{{documentID}}/{{documentIDotro}}",
+					"host": [
+						"{{UrlBase}}"
+					],
+					"path": [
+						"usuarios",
+						"eliminarAmigo",
+						"{{documentID}}",
+						"{{documentIDotro}}"
 					]
 				}
 			},
@@ -729,39 +1575,6 @@
 						"exec": [
 							"pm.test(\"Codigo de respuesta 404, No existe el usuario\", function () {\r",
 							"    pm.response.to.have.status(404);\r",
-							"});"
-						],
-						"type": "text/javascript",
-						"packages": {},
-						"requests": {}
-					}
-				}
-			],
-			"request": {
-				"method": "DELETE",
-				"header": [],
-				"url": {
-					"raw": "{{UrlBase}}/usuarios/{{documentID}}",
-					"host": [
-						"{{UrlBase}}"
-					],
-					"path": [
-						"usuarios",
-						"{{documentID}}"
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "Eliminacion Error interno servidor(Preguntar)",
-			"event": [
-				{
-					"listen": "test",
-					"script": {
-						"exec": [
-							"pm.test(\"Codigo de respuesta 500, Error interno\", function () {\r",
-							"    pm.response.to.have.status(500);\r",
 							"});"
 						],
 						"type": "text/javascript",

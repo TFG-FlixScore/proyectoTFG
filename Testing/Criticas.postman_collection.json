@@ -31,6 +31,16 @@
 				}
 			],
 			"request": {
+				"auth": {
+					"type": "oauth2",
+					"oauth2": [
+						{
+							"key": "addTokenTo",
+							"value": "header",
+							"type": "string"
+						}
+					]
+				},
 				"method": "POST",
 				"header": [],
 				"body": {
@@ -56,20 +66,272 @@
 			"response": []
 		},
 		{
+			"name": "Modificar Critica datos invalidos",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Codigo de estado 400, datos invalidos\", function () {\r",
+							"    pm.response.to.have.status(400);\r",
+							"});\r",
+							"\r",
+							"\r",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {},
+						"requests": {}
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "oauth2",
+					"oauth2": [
+						{
+							"key": "addTokenTo",
+							"value": "header",
+							"type": "string"
+						}
+					]
+				},
+				"method": "PATCH",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{UrlBase}}/criticas/editarCritica/{{documentID}}?comentario&puntuacion",
+					"host": [
+						"{{UrlBase}}"
+					],
+					"path": [
+						"criticas",
+						"editarCritica",
+						"{{documentID}}"
+					],
+					"query": [
+						{
+							"key": "comentario",
+							"value": null
+						},
+						{
+							"key": "puntuacion",
+							"value": null
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Modificar Critica document id incorrecto",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Codigo de estado 404, critica no encontrada\", function () {\r",
+							"    pm.response.to.have.status(404);\r",
+							"});\r",
+							"\r",
+							"\r",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {},
+						"requests": {}
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "oauth2",
+					"oauth2": [
+						{
+							"key": "addTokenTo",
+							"value": "header",
+							"type": "string"
+						}
+					]
+				},
+				"method": "PATCH",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{UrlBase}}/criticas/editarCritica/documentId?comentario&puntuacion",
+					"host": [
+						"{{UrlBase}}"
+					],
+					"path": [
+						"criticas",
+						"editarCritica",
+						"documentId"
+					],
+					"query": [
+						{
+							"key": "comentario",
+							"value": null
+						},
+						{
+							"key": "puntuacion",
+							"value": null
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Modificar Critica puntuacion correcta",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Codigo de estado 204, datos validos\", function () {\r",
+							"    pm.response.to.have.status(204);\r",
+							"});\r",
+							"\r",
+							"\r",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {},
+						"requests": {}
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "oauth2",
+					"oauth2": [
+						{
+							"key": "addTokenTo",
+							"value": "header",
+							"type": "string"
+						}
+					]
+				},
+				"method": "PATCH",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{UrlBase}}/criticas/editarCritica/{{documentID}}?puntuacion=5",
+					"host": [
+						"{{UrlBase}}"
+					],
+					"path": [
+						"criticas",
+						"editarCritica",
+						"{{documentID}}"
+					],
+					"query": [
+						{
+							"key": "puntuacion",
+							"value": "5"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Modificar Critica comentario correcta",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Codigo de estado 204, datos validos\", function () {\r",
+							"    pm.response.to.have.status(204);\r",
+							"});\r",
+							"\r",
+							"\r",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {},
+						"requests": {}
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "oauth2",
+					"oauth2": [
+						{
+							"key": "addTokenTo",
+							"value": "header",
+							"type": "string"
+						}
+					]
+				},
+				"method": "PATCH",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{UrlBase}}/criticas/editarCritica/{{documentID}}?comentario=Pocahontas en azul, pero está chula",
+					"host": [
+						"{{UrlBase}}"
+					],
+					"path": [
+						"criticas",
+						"editarCritica",
+						"{{documentID}}"
+					],
+					"query": [
+						{
+							"key": "comentario",
+							"value": "Pocahontas en azul, pero está chula"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
 			"name": "CrearCritica nulls",
 			"event": [
 				{
 					"listen": "test",
 					"script": {
 						"exec": [
-							"pm.test(\"Codigo de estado 200, critica creada\", function () {\r",
-							"    pm.response.to.have.status(200);\r",
+							"pm.test(\"Codigo de estado 500, critica con nulls\", function () {\r",
+							"    pm.response.to.have.status(500);\r",
 							"});\r",
 							"\r",
-							"\r",
-							"var json = pm.response.json()\r",
-							"\r",
-							"pm.environment.set(\"documentID\", json.documentID)\r",
 							""
 						],
 						"type": "text/javascript",
@@ -104,7 +366,7 @@
 			"response": []
 		},
 		{
-			"name": "CrearCritica eror sin cuerpo",
+			"name": "CrearCritica error sin cuerpo",
 			"event": [
 				{
 					"listen": "test",
@@ -114,10 +376,6 @@
 							"    pm.response.to.have.status(400);\r",
 							"});\r",
 							"\r",
-							"\r",
-							"var json = pm.response.json()\r",
-							"\r",
-							"pm.environment.set(\"documentID\", json.documentID)\r",
 							""
 						],
 						"type": "text/javascript",

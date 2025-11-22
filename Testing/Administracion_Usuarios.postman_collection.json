@@ -1,0 +1,695 @@
+{
+	"info": {
+		"_postman_id": "ec9c100b-d160-4e5a-bfe0-52903915ab99",
+		"name": "Administracion_Usuarios",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "49749285",
+		"_collection_link": "https://ricardo-he-bl-9902449.postman.co/workspace/Ricardo-Herradon's-Workspace~2c92c116-53b2-4c58-8735-a4dc6e15d3a1/collection/49749285-ec9c100b-d160-4e5a-bfe0-52903915ab99?action=share&source=collection_link&creator=49749285"
+	},
+	"item": [
+		{
+			"name": "Banear usuario banear",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Codigo verificado 200, modificacion correcta\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {},
+						"requests": {}
+					}
+				}
+			],
+			"request": {
+				"method": "PUT",
+				"header": [
+					{
+						"key": "devKeyHeader",
+						"value": "{{clavedev}}",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "{{UrlBase}}/admin/users/{{documentID}}/disable?disabled=true",
+					"host": [
+						"{{UrlBase}}"
+					],
+					"path": [
+						"admin",
+						"users",
+						"{{documentID}}",
+						"disable"
+					],
+					"query": [
+						{
+							"key": "disabled",
+							"value": "true"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "habilitar usuario",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Codigo verificado 200, modificacion correcta\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {},
+						"requests": {}
+					}
+				}
+			],
+			"request": {
+				"method": "PUT",
+				"header": [
+					{
+						"key": "devKeyHeader",
+						"value": "{{clavedev}}",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "{{UrlBase}}/admin/users/{{documentID}}/disable?disabled=false",
+					"host": [
+						"{{UrlBase}}"
+					],
+					"path": [
+						"admin",
+						"users",
+						"{{documentID}}",
+						"disable"
+					],
+					"query": [
+						{
+							"key": "disabled",
+							"value": "false"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Banear usuario incorrecto",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Codigo verificado 400, usuario no existe\", function () {\r",
+							"    pm.response.to.have.status(400);\r",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {},
+						"requests": {}
+					}
+				}
+			],
+			"request": {
+				"method": "PUT",
+				"header": [
+					{
+						"key": "devKeyHeader",
+						"value": "{{clavedev}}",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "{{UrlBase}}/admin/users/1111/disable?disabled=true",
+					"host": [
+						"{{UrlBase}}"
+					],
+					"path": [
+						"admin",
+						"users",
+						"1111",
+						"disable"
+					],
+					"query": [
+						{
+							"key": "disabled",
+							"value": "true"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Banear clave no proporcionada",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Codigo verificado 400, clave no proporcionada\", function () {\r",
+							"    pm.response.to.have.status(400);\r",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {},
+						"requests": {}
+					}
+				}
+			],
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"url": {
+					"raw": "{{UrlBase}}/admin/users/1111/disable?disabled=true",
+					"host": [
+						"{{UrlBase}}"
+					],
+					"path": [
+						"admin",
+						"users",
+						"1111",
+						"disable"
+					],
+					"query": [
+						{
+							"key": "disabled",
+							"value": "true"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Banear clave incorrecta",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Codigo verificado 401, clave administracion incorrecta\", function () {\r",
+							"    pm.response.to.have.status(401);\r",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {},
+						"requests": {}
+					}
+				}
+			],
+			"request": {
+				"method": "PUT",
+				"header": [
+					{
+						"key": "devKeyHeader",
+						"value": "",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "{{UrlBase}}/admin/users/1111/disable?disabled=true",
+					"host": [
+						"{{UrlBase}}"
+					],
+					"path": [
+						"admin",
+						"users",
+						"1111",
+						"disable"
+					],
+					"query": [
+						{
+							"key": "disabled",
+							"value": "true"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Asignar rol clave incorrecta",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Codigo verificado 401, clave administracion incorrecta\", function () {\r",
+							"    pm.response.to.have.status(401);\r",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {},
+						"requests": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "devKeyHeader",
+						"value": "dawd",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "{{UrlBase}}/admin/users/1111/role?role=user",
+					"host": [
+						"{{UrlBase}}"
+					],
+					"path": [
+						"admin",
+						"users",
+						"1111",
+						"role"
+					],
+					"query": [
+						{
+							"key": "role",
+							"value": "user"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Asignar rol usuario incorrecto",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Codigo verificado 200, usuario modificado correcto\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {},
+						"requests": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "devKeyHeader",
+						"value": "{{clavedev}}",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "{{UrlBase}}/admin/users/11111/role?role=user",
+					"host": [
+						"{{UrlBase}}"
+					],
+					"path": [
+						"admin",
+						"users",
+						"11111",
+						"role"
+					],
+					"query": [
+						{
+							"key": "role",
+							"value": "user"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Asignar rol usuario correcto",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Codigo verificado 200, usuario modificado correcto\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {},
+						"requests": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "devKeyHeader",
+						"value": "{{clavedev}}",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "{{UrlBase}}/admin/users/{{documentID}}/role?role=user",
+					"host": [
+						"{{UrlBase}}"
+					],
+					"path": [
+						"admin",
+						"users",
+						"{{documentID}}",
+						"role"
+					],
+					"query": [
+						{
+							"key": "role",
+							"value": "user"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Asignar rol no valido",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Codigo verificado 400, rol incorrecto\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {},
+						"requests": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "devKeyHeader",
+						"value": "{{clavedev}}",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "{{UrlBase}}/admin/users/{{documentID}}/role?role=Jefazo",
+					"host": [
+						"{{UrlBase}}"
+					],
+					"path": [
+						"admin",
+						"users",
+						"{{documentID}}",
+						"role"
+					],
+					"query": [
+						{
+							"key": "role",
+							"value": "Jefazo"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Reiniciar contraseña",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Codigo verificado 200, reinicio correcto\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {},
+						"requests": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "devKeyHeader",
+						"value": "{{clavedev}}",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "{{UrlBase}}/admin/users/{{documentID}}/reset-password",
+					"host": [
+						"{{UrlBase}}"
+					],
+					"path": [
+						"admin",
+						"users",
+						"{{documentID}}",
+						"reset-password"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Reiniciar contraseña clave invalida",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Codigo verificado 401, clave invalida\", function () {\r",
+							"    pm.response.to.have.status(401);\r",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {},
+						"requests": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "devKeyHeader",
+						"value": "asd",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "{{UrlBase}}/admin/users/{{documentID}}/reset-password",
+					"host": [
+						"{{UrlBase}}"
+					],
+					"path": [
+						"admin",
+						"users",
+						"{{documentID}}",
+						"reset-password"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Reiniciar contraseña usuario incorrecto",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Codigo verificado 400, usuario incorrecto\", function () {\r",
+							"    pm.response.to.have.status(400);\r",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {},
+						"requests": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "devKeyHeader",
+						"value": "{{clavedev}}",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "{{UrlBase}}/admin/users/1111/reset-password",
+					"host": [
+						"{{UrlBase}}"
+					],
+					"path": [
+						"admin",
+						"users",
+						"1111",
+						"reset-password"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Lista usuarios admin",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "devKeyHeader",
+						"value": "{{clavedev}}",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "{{UrlBase}}/admin/users",
+					"host": [
+						"{{UrlBase}}"
+					],
+					"path": [
+						"admin",
+						"users"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Eliminar usuarios admin",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Codigo de estado 200, usuario eliminado de administracion\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {},
+						"requests": {}
+					}
+				}
+			],
+			"request": {
+				"method": "DELETE",
+				"header": [
+					{
+						"key": "devKeyHeader",
+						"value": "{{clavedev}}",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "{{UrlBase}}/admin/users/{{documentID}}",
+					"host": [
+						"{{UrlBase}}"
+					],
+					"path": [
+						"admin",
+						"users",
+						"{{documentID}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Eliminar usuarios incorrecto admin",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Codigo de estado 400, usuario no existe\", function () {\r",
+							"    pm.response.to.have.status(400);\r",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {},
+						"requests": {}
+					}
+				}
+			],
+			"request": {
+				"method": "DELETE",
+				"header": [
+					{
+						"key": "devKeyHeader",
+						"value": "{{clavedev}}",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "{{UrlBase}}/admin/users/11111",
+					"host": [
+						"{{UrlBase}}"
+					],
+					"path": [
+						"admin",
+						"users",
+						"11111"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Eliminar usuarios admin clave incorrecta",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Codigo de estado 401, clave incorrecta\", function () {\r",
+							"    pm.response.to.have.status(401);\r",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {},
+						"requests": {}
+					}
+				}
+			],
+			"request": {
+				"method": "DELETE",
+				"header": [
+					{
+						"key": "devKeyHeader",
+						"value": "sad",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "{{UrlBase}}/admin/users/11111",
+					"host": [
+						"{{UrlBase}}"
+					],
+					"path": [
+						"admin",
+						"users",
+						"11111"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}

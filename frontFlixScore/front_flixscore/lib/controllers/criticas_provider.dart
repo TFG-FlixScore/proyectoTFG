@@ -5,10 +5,7 @@ import 'package:flixscore/service/api_service.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flixscore/utils/app_logger.dart';
 
-
-
-class CriticasProvider extends ChangeNotifier{
-
+class CriticasProvider extends ChangeNotifier {
   ModeloUsuario? _usuarioLogueado;
   ModeloUsuario? get usuarioLogueado => _usuarioLogueado;
 
@@ -16,32 +13,45 @@ class CriticasProvider extends ChangeNotifier{
 
   String? _errorMessage;
   String? get errorMessage => _errorMessage;
+  bool _cargando = false;
+  bool get cargando => _cargando;
   List<ModeloCritica> _criticasUsuario = [];
   List<ModeloCritica> get criticasUsuario => _criticasUsuario;
   List<ModeloCritica> _criticasAmigos = [];
   List<ModeloCritica> get criticasAmigos => _criticasAmigos;
   List<PeliculaCard> _peliculasCardAmigos = [];
   List<PeliculaCard> get peliculasCardAmigos => _peliculasCardAmigos;
-  
+  List<PeliculaCard> _peliculasCardUltimas = [];
+  List<PeliculaCard> get peliculasCardUltimas => _peliculasCardUltimas;
+
   CriticasProvider();
 
   //Metodo para actualizar el usuario logueado
   void actualizarUsuarioLogueado(ModeloUsuario? usuario) {
-    AppLogger.logMethod('actualizarUsuarioLogueado', message: 'usuario: $usuario');
+    AppLogger.logMethod(
+      'actualizarUsuarioLogueado',
+      message: 'usuario: $usuario',
+    );
     _usuarioLogueado = usuario;
-    _recargarUsuario();
+    recargarUsuario();
   }
 
-  Future<void> _recargarUsuario() async {
-    AppLogger.logMethod('_recargarUsuario', message: 'usuarioLogueado: $_usuarioLogueado');
-    await _cargarCriticasDelUsuario();
-    await _cargarCriticasDeAmigos();
-    await _servirPeliculasCard();
+  Future<void> recargarUsuario() async {
+    AppLogger.logMethod(
+      '_recargarUsuario',
+      message: 'usuarioLogueado: $_usuarioLogueado',
+    );
+    await cargarCriticasDelUsuario();
+    await cargarCriticasDeAmigos();
+    await servirPeliculasCard();
     notifyListeners();
   }
 
-  Future<void> _cargarCriticasDelUsuario() async {
-    AppLogger.logMethod('_cargarCriticasDelUsuario', message: 'usuarioLogueado: $_usuarioLogueado');
+  Future<void> cargarCriticasDelUsuario() async {
+    AppLogger.logMethod(
+      '_cargarCriticasDelUsuario',
+      message: 'usuarioLogueado: $_usuarioLogueado',
+    );
     if (_usuarioLogueado == null) {
       _errorMessage = "Usuario no logueado";
       AppLogger.logError(_errorMessage!);
@@ -50,7 +60,9 @@ class CriticasProvider extends ChangeNotifier{
     }
 
     try {
-      _criticasUsuario = await apiService.getCriticasByUserId(_usuarioLogueado!.documentID!);
+      _criticasUsuario = await apiService.getCriticasByUserId(
+        _usuarioLogueado!.documentID!,
+      );
       AppLogger.logVar('criticasUsuario', _criticasUsuario);
       _errorMessage = null;
     } catch (e) {
@@ -60,8 +72,11 @@ class CriticasProvider extends ChangeNotifier{
     notifyListeners();
   }
 
-  Future<void> _cargarCriticasDeAmigos() async {
-    AppLogger.logMethod('_cargarCriticasDeAmigos', message: 'usuarioLogueado: $_usuarioLogueado');
+  Future<void> cargarCriticasDeAmigos() async {
+    AppLogger.logMethod(
+      '_cargarCriticasDeAmigos',
+      message: 'usuarioLogueado: $_usuarioLogueado',
+    );
     if (_usuarioLogueado == null) {
       _errorMessage = "Usuario no logueado";
       AppLogger.logError(_errorMessage!);
@@ -74,7 +89,8 @@ class CriticasProvider extends ChangeNotifier{
     try {
       for (var amigoId in _usuarioLogueado!.amigosId) {
         AppLogger.logVar('amigoId', amigoId);
-        List<ModeloCritica> criticasAmigo = await apiService.getCriticasByUserId(amigoId);
+        List<ModeloCritica> criticasAmigo = await apiService
+            .getCriticasByUserId(amigoId);
         AppLogger.logVar('criticasAmigo', criticasAmigo);
         criticasAmigosTemp.addAll(criticasAmigo);
       }
@@ -88,22 +104,68 @@ class CriticasProvider extends ChangeNotifier{
     notifyListeners();
   }
 
-  Future<void> _servirPeliculasCard() async {
-    AppLogger.logMethod('_servirPeliculasCard', message: 'criticasAmigos: $_criticasAmigos');
+  Future<void> cargarUltimasCriticas() async {
+    AppLogger.logMethod('cargarUltimasCriticas');
+    _cargando = true;
+    notifyListeners();
+    try {
+      List<ModeloCritica> ultimasCriticas = await apiService
+          .getCriticasRecientes(10);
+      AppLogger.logVar('ultimasCriticas', ultimasCriticas);
+      _peliculasCardUltimas.clear();
+
+      // Agrupa críticas por película para evitar duplicados
+      final Map<String, List<ModeloCritica>> criticasPorPelicula = {};
+      for (var critica in ultimasCriticas) {
+        final key = critica.peliculaID.toString();
+        criticasPorPelicula.putIfAbsent(key, () => []);
+        criticasPorPelicula[key]!.add(critica);
+      }
+
+      for (var entry in criticasPorPelicula.entries) {
+        final peliculaID = entry.key;
+        final criticas = entry.value;
+        final pelicula = await apiService.getMovieByID(peliculaID);
+
+        _peliculasCardUltimas.add(
+          PeliculaCard(pelicula: pelicula, criticasAmigos: criticas),
+        );
+      }
+
+      AppLogger.logVar('peliculasCardUltimas', _peliculasCardUltimas);
+      _errorMessage = null;
+    } catch (e) {
+      _errorMessage = "Error al cargar últimas críticas desde Provider: $e";
+      AppLogger.logError(_errorMessage!);
+    }
+    _cargando = false;
+    notifyListeners();
+  }
+
+  Future<void> servirPeliculasCard() async {
+    AppLogger.logMethod(
+      '_servirPeliculasCard',
+      message: 'criticasAmigos: $_criticasAmigos',
+    );
     _peliculasCardAmigos.clear();
     try {
-      for (var critica in _criticasAmigos) {
-        AppLogger.logVar('critica', critica);
-        var usuario = await apiService.getUsuarioByID(critica.usuarioUID);
-        AppLogger.logVar('usuario', usuario);
-        var pelicula = await apiService.getMovieByID(critica.peliculaID.toString());
-        AppLogger.logVar('pelicula', pelicula);
+      final criticasPorPelicula = _agruparCriticasPorPelicula(_criticasAmigos);
+      for (var entry in criticasPorPelicula.entries) {
+        final peliculaID = entry.key;
+        final criticas = entry.value;
+        var pelicula = await apiService.getMovieByID(peliculaID);
 
-        _peliculasCardAmigos.add(PeliculaCard(
-          pelicula: pelicula,
-          critica: critica,
-          usuario: usuario,
-        ));
+        // Busca tu crítica para esta película
+        final miCriticaList = _criticasUsuario
+            .where((c) => c.peliculaID.toString() == peliculaID)
+            .toList();
+
+        // Crea una lista combinada: primero tu crítica (si existe), luego las de amigos
+        final todasCriticas = [...miCriticaList, ...criticas];
+
+        _peliculasCardAmigos.add(
+          PeliculaCard(pelicula: pelicula, criticasAmigos: todasCriticas),
+        );
       }
       AppLogger.logVar('peliculasCardAmigos', _peliculasCardAmigos);
       _errorMessage = null;
@@ -115,23 +177,40 @@ class CriticasProvider extends ChangeNotifier{
   }
 
   Future<void> crearCritica(ModeloCritica nuevaCritica) async {
-  AppLogger.logMethod('crearCritica', message: 'nuevaCritica: $nuevaCritica');
-  AppLogger.logVar('nuevaCritica id Usuario', nuevaCritica.usuarioUID);
-  AppLogger.logVar('nuevaCritica id Pelicula', nuevaCritica.peliculaID);
-  AppLogger.logVar('nuevaCritica puntuacion', nuevaCritica.puntuacion);
-  AppLogger.logVar('nuevaCritica comentario', nuevaCritica.comentario);
-  AppLogger.logVar('nuevaCritica fecha', nuevaCritica.fechaCreacion.toString());
+    AppLogger.logMethod('crearCritica', message: 'nuevaCritica: $nuevaCritica');
+    AppLogger.logVar('nuevaCritica id Usuario', nuevaCritica.usuarioUID);
+    AppLogger.logVar('nuevaCritica id Pelicula', nuevaCritica.peliculaID);
+    AppLogger.logVar('nuevaCritica puntuacion', nuevaCritica.puntuacion);
+    AppLogger.logVar('nuevaCritica comentario', nuevaCritica.comentario);
+    AppLogger.logVar(
+      'nuevaCritica fecha',
+      nuevaCritica.fechaCreacion.toString(),
+    );
     try {
       final criticaCreada = await apiService.addCritica(nuevaCritica);
-  AppLogger.logVar('criticaCreada', criticaCreada);
+      AppLogger.logVar('criticaCreada', criticaCreada);
       _criticasUsuario.add(criticaCreada);
-  AppLogger.logVar('criticasUsuario', _criticasUsuario);
+      AppLogger.logVar('criticasUsuario', _criticasUsuario);
       _errorMessage = null;
       notifyListeners();
     } catch (e) {
       _errorMessage = "Error al crear crítica desde Provider: $e";
-  AppLogger.logError(_errorMessage!);
+      AppLogger.logError(_errorMessage!);
       notifyListeners();
     }
+  }
+
+  Map<String, List<ModeloCritica>> _agruparCriticasPorPelicula(
+    List<ModeloCritica> criticas,
+  ) {
+    final Map<String, List<ModeloCritica>> criticasPorPelicula = {};
+    for (var critica in criticas) {
+      final key = critica.peliculaID.toString();
+      if (!criticasPorPelicula.containsKey(key)) {
+        criticasPorPelicula[key] = [];
+      }
+      criticasPorPelicula[key]!.add(critica);
+    }
+    return criticasPorPelicula;
   }
 }

@@ -9,35 +9,44 @@ class PeliculaCard extends StatelessWidget {
   final ModeloPelicula pelicula;
   final ModeloCritica? critica;
   final ModeloUsuario? usuario;
+  final List<ModeloCritica>? criticasAmigos;
 
   const PeliculaCard({
     super.key,
     required this.pelicula,
     this.critica,
     this.usuario,
+    this.criticasAmigos,
   });
 
   @override
   Widget build(BuildContext context) {
+    // Combina tu crítica y las de amigos
+    final List<ModeloCritica> todasCriticas = [
+      if (critica != null) critica!,
+      ...(criticasAmigos ?? []),
+    ];
+
     return LayoutBuilder(
       builder: (context, constraints) {
         return IntrinsicHeight(
           child: InkWell(
             borderRadius: BorderRadius.circular(16),
             onTap: () {
-              if (critica != null) {
-                showDialog(
-                  context: context,
-                  builder: (context) => Dialog(
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(16),
-                    ),
-                    child: SingleChildScrollView(
-                      child: TarjetaPeliculaConCriticas(pelicula: pelicula),
+              showDialog(
+                context: context,
+                builder: (context) => Dialog(
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                  child: SingleChildScrollView(
+                    child: TarjetaPeliculaConCriticas(
+                      pelicula: pelicula,
+                      criticasAmigos: todasCriticas, // pasa la lista combinada
                     ),
                   ),
-                );
-              }
+                ),
+              );
             },
             child: Card(
               color: const Color(0xFF1F2937),
@@ -47,7 +56,7 @@ class PeliculaCard extends StatelessWidget {
               elevation: 4,
               child: Padding(
                 padding: const EdgeInsets.all(16),
-                child: _tarjetaLayout(),
+                child: _tarjetaLayout(todasCriticas),
               ),
             ),
           ),
@@ -56,8 +65,18 @@ class PeliculaCard extends StatelessWidget {
     );
   }
 
+  Widget _tarjetaLayout(List<ModeloCritica> todasCriticas) {
+    double? mediaTotal;
+    if (todasCriticas.isNotEmpty) {
+      final total = todasCriticas.fold<double>(
+        0,
+        (sum, c) => sum + c.puntuacion,
+      );
+      mediaTotal = double.parse(
+        (total / todasCriticas.length).toStringAsFixed(1),
+      );
+    }
 
-  Widget _tarjetaLayout() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisAlignment: MainAxisAlignment.start,
@@ -95,7 +114,7 @@ class PeliculaCard extends StatelessWidget {
             const Icon(Icons.star, color: Colors.orange, size: 14),
             const SizedBox(width: 4),
             Text(
-              "${critica?.puntuacion}/10",
+              mediaTotal != null ? "$mediaTotal/10" : "Sin puntuación",
               style: const TextStyle(
                 color: Colors.orange,
                 fontWeight: FontWeight.bold,
@@ -106,5 +125,4 @@ class PeliculaCard extends StatelessWidget {
       ],
     );
   }
-
 }

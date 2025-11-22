@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';
+import 'package:provider/provider.dart';
+import 'package:flixscore/controllers/criticas_provider.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -10,11 +12,23 @@ class SplashScreen extends StatefulWidget {
 
 class _SplashScreenState extends State<SplashScreen> {
   @override
-  void initState() {
+  void initState()  {
     super.initState();
-    Future.delayed(const Duration(seconds: 5), () {
-      Navigator.of(context).pushReplacementNamed('/home');
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      await _cargarDatos();
     });
+  }
+
+  Future<void> _cargarDatos() async {
+    final provider = Provider.of<CriticasProvider>(context, listen: false);
+    await provider.cargarCriticasDelUsuario();
+    await provider.cargarCriticasDeAmigos();
+    await provider.servirPeliculasCard();
+    await provider.cargarUltimasCriticas();
+
+    if (mounted) {
+      Navigator.of(context).pushReplacementNamed('/home');
+    }
   }
 
   @override
